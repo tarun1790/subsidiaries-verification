@@ -256,9 +256,9 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     RULE 10 — LOCATION AND INDUSTRY: Same country/industry does not establish ownership.
 
     ECOSYSTEM INCLUSION RULES (RELAXED VERIFICATION)
-    - If the entity is an internal business division, department, or center (e.g., Application Testing Centre of Excellence, Tahweel Al Rajhi), it MUST BE CLASSIFIED AS A MATCH (CORRECT).
-    - If the entity is a product, app, digital wallet, portal, service, or brand (e.g., urpay, eHub, ARC Super App) that is owned, developed, or operated by the parent company OR by ANY of its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
-    - If the entity is a mutual fund, REIT, private equity fund, or any other financial fund managed or launched by the parent or its subsidiaries (e.g., Al Rajhi REIT Fund, Pharma Sukuk Fund), it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is an internal business division, department, or operational center, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is a product, app, digital wallet, portal, service, or brand that is owned, developed, or operated by the parent company OR by ANY of its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is a mutual fund, REIT, private equity fund, or any other financial fund managed or launched by the parent or its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the parent company or a child of the parent company has invested funds into the entity, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - In short: if an entity is part of the parent's ecosystem directly or indirectly, or if there is investment by the parent/subsidiary, it is a MATCH. 
     - Only mark as NO MATCH (INCORRECT) if the entity is completely independently owned by someone else with no investment/ownership link, or if there is zero evidence of any relationship whatsoever.
