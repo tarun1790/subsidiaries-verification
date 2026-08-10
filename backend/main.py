@@ -473,6 +473,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             "incorrect_lems": incorrect_lems, 
             "total_checked": len(entities),
             "download_url": f"/api/download/{run_id}",
+            "run_id": run_id,
             "tokens_used": total_tokens_used
         })
         

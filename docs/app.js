@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Provide download link
                 if (data.incorrect_lems.length > 0) {
                     downloadContainer.classList.remove('hidden');
-                    downloadLink.href = `${API_BASE}/api/download/${data.run_id || 'latest'}?cb=${Date.now()}`; 
+                    downloadLink.href = `${API_BASE}${data.download_url}?cb=${Date.now()}`; 
                 }
                 
                 // (History is now loaded on the separate /history page, no need to refresh it here)
