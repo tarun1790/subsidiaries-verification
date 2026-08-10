@@ -264,18 +264,17 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     - Only mark as NO MATCH (INCORRECT) if the entity is completely independently owned by someone else with no investment/ownership link, or if there is zero evidence of any relationship whatsoever.
 
     EVIDENCE SUFFICIENCY
-    Before declaring a parent-child relationship, ask:
+    Before declaring a relationship, ask:
     - Does the evidence identify the entity and parent?
-    - Does the evidence establish ownership or control?
-    - Is the relationship current?
-    If these conditions cannot be established, the relationship is UNKNOWN. Never fabricate a relationship.
+    - Does the evidence establish ecosystem inclusion, ownership, investment, or control?
+    If neither ownership, investment, nor ecosystem inclusion can be established, the relationship is UNKNOWN. Never fabricate a relationship.
 
     DECISION LOGIC
     Determine:
     A. VERIFIED RELATIONSHIP: What is the entity's actual relationship?
-    B. VERIFIED PARENT: Who actually owns or controls the entity?
+    B. VERIFIED PARENT: Who actually owns, operates, or invested in the entity?
     C. CLAIMED PARENT: What parent company does the spreadsheet claim?
-    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
+    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired, Ecosystem Product/Fund/Investment = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
 
     Respond strictly in JSON format. The JSON should be an array of objects for ONLY the entities where MATCH is FALSE (i.e. they are NOT related/owned).
     If an entity is a match, DO NOT include it in the JSON array.
