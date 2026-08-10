@@ -258,6 +258,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     CORPORATE ENTITY RULES
     - Verify the candidate as a legal corporate entity before determining any parent relationship.
     - Treat funds, REITs, products, apps, portals, brands, services, departments, and internal centers as NON_CORPORATE, unless separately proven to be incorporated entities.
+    - CRITICAL DISTINCTION: A marketplace, app, software platform, or product operated by a valid subsidiary is STILL a product (NON_CORPORATE). Do not classify a subsidiary's product as a corporate subsidiary itself, even if the parent company ultimately owns the operating subsidiary.
     - A company is a SUBSIDIARY only when ownership or control by the parent is explicitly supported by reliable evidence.
     - Never infer ownership from branding, management, service provision, website presence, executive relationships, or name similarity.
     - Prioritize the parent's annual report, audited financial statements, regulatory filings, and official corporate disclosures over search snippets.
