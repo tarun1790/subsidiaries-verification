@@ -45,6 +45,38 @@ if sys.platform == 'win32':
 
 app = FastAPI()
 
+from bs4 import BeautifulSoup
+from playwright.async_api import async_playwright
+
+playwright_manager = None
+browser_instance = None
+browser_context = None
+browser_sem = asyncio.Semaphore(3)  # Maximum 3 concurrent tabs
+
+@app.on_event("startup")
+async def startup_event():
+    global playwright_manager, browser_instance, browser_context
+    try:
+        playwright_manager = await async_playwright().start()
+        browser_instance = await playwright_manager.chromium.launch(headless=True)
+        browser_context = await browser_instance.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+        )
+        logger.info("Playwright browser started.")
+    except Exception as e:
+        logger.error(f"Failed to start Playwright: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    global playwright_manager, browser_instance, browser_context
+    if browser_context:
+        await browser_context.close()
+    if browser_instance:
+        await browser_instance.close()
+    if playwright_manager:
+        await playwright_manager.stop()
+    logger.info("Playwright browser stopped.")
+
 from fastapi.middleware.cors import CORSMiddleware
 
 # Enable CORS for GitHub Pages
@@ -73,13 +105,13 @@ SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
 
 import asyncio
 
-def _fetch_serper(query: str) -> str:
-    """Synchronous function to hit Serper.dev and extract snippets."""
+def _fetch_serper(query: str) -> list:
+    """Synchronous function to hit Serper.dev and extract snippets and links."""
     if not SERPER_API_KEY:
-        return "Serper key not configured."
+        return []
         
     url = "https://google.serper.dev/search"
-    payload = json.dumps({"q": query, "num": 3})
+    payload = json.dumps({"q": query, "num": 2})
     headers = {
         'X-API-KEY': SERPER_API_KEY,
         'Content-Type': 'application/json'
@@ -96,28 +128,70 @@ def _fetch_serper(query: str) -> str:
                     time.sleep(1 + attempt)  # Backoff
                     continue
                 else:
-                    return "Search failed: Rate limited by Serper.dev."
+                    return []
                     
             if response.status_code != 200:
-                return f"Search failed with status {response.status_code}."
+                return []
                 
             data = response.json()
-            snippets = []
-            for result in data.get("organic", [])[:3]:
-                if "snippet" in result:
-                    snippets.append(result["snippet"])
-                    
-            return "\n".join(snippets) if snippets else "No snippets found."
+            results = []
+            for result in data.get("organic", [])[:2]:
+                if "link" in result:
+                    results.append({
+                        "snippet": result.get("snippet", ""),
+                        "link": result.get("link", "")
+                    })
+            return results
     except Exception as e:
-        return f"Search failed due to network error: {e}"
+        logger.error(f"Serper error: {e}")
+        return []
+
+async def scrape_url(url: str) -> str:
+    global browser_context
+    if not browser_context:
+        return ""
+        
+    async with browser_sem:
+        page = None
+        try:
+            page = await browser_context.new_page()
+            # Abort media requests to speed up load and save memory
+            await page.route("**/*", lambda route: route.abort() if route.request.resource_type in ["image", "media", "font", "stylesheet"] else route.continue_())
+            await page.goto(url, timeout=5000, wait_until="domcontentloaded")
+            html = await page.content()
+            soup = BeautifulSoup(html, 'lxml')
+            
+            # Remove scripts, styles, navs
+            for script in soup(["script", "style", "nav", "footer", "header", "aside"]):
+                script.decompose()
+            
+            text = soup.get_text(separator=' ', strip=True)
+            # Limit text size to ~5000 characters
+            return text[:5000]
+        except Exception as e:
+            logger.warning(f"Scrape failed for {url}: {e}")
+            return ""
+        finally:
+            if page:
+                await page.close()
 
 async def fetch_search_data(entity: str, parent: str, sem) -> tuple[str, str]:
-    """Uses Serper.dev to fetch search snippets concurrently."""
+    """Uses Serper.dev and Playwright to fetch full web evidence."""
     async with sem:
-        # Improved search query to specifically target ownership and holdings
         query = f"{entity} {parent} (ownership OR subsidiary OR holdings OR investors OR stakes)"
-        data = await asyncio.to_thread(_fetch_serper, query)
-        return entity, data
+        results = await asyncio.to_thread(_fetch_serper, query)
+        
+        evidence_parts = []
+        for res in results:
+            evidence = f"Snippet: {res['snippet']}"
+            if res['link']:
+                scraped_text = await scrape_url(res['link'])
+                if scraped_text:
+                    evidence += f"\nFull Page Text ({res['link']}): {scraped_text}"
+            evidence_parts.append(evidence)
+            
+        final_evidence = "\n\n".join(evidence_parts) if evidence_parts else "No snippets found."
+        return entity, final_evidence
 
 def analyze_relationships_batch(entities: list, parent: str, search_results: dict) -> tuple[list, int]:
     """Uses Gemini API to evaluate a batch of entities based on internal AI knowledge."""
