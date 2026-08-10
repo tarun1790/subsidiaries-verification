@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadContainer = document.getElementById('download-container');
     const downloadLink = document.getElementById('download-link');
     
+    // Dynamic API Base URL for GitHub Pages
+    const API_BASE = window.location.hostname === 'tarun1790.github.io' ? 'http://127.0.0.1:8000' : '';
+    
     // Removed unused nav logic
     
     // Update file name display when file is selected
@@ -44,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         
         try {
-            const response = await fetch('/api/verify', {
+            const response = await fetch(`${API_BASE}/api/verify`, {
                 method: 'POST',
                 body: formData
             });
@@ -59,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Provide download link
                 if (data.incorrect_lems.length > 0) {
                     downloadContainer.classList.remove('hidden');
-                    downloadLink.href = `/api/download/${data.run_id || 'latest'}?cb=${Date.now()}`; 
+                    downloadLink.href = `${API_BASE}/api/download/${data.run_id || 'latest'}?cb=${Date.now()}`; 
                 }
                 
                 // (History is now loaded on the separate /history page, no need to refresh it here)

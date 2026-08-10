@@ -45,6 +45,17 @@ if sys.platform == 'win32':
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+# Enable CORS for GitHub Pages
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://tarun1790.github.io", "http://localhost:8000", "http://127.0.0.1:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 import os
 # Ensure frontend directory exists for static files to mount successfully
 frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend")

@@ -1,12 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const historyBody = document.getElementById('history-body');
     
+    // Dynamic API Base URL for GitHub Pages
+    const API_BASE = window.location.hostname === 'tarun1790.github.io' ? 'http://127.0.0.1:8000' : '';
+    
     // Load history immediately on page load
     loadHistory();
     
     async function loadHistory() {
         try {
-            const response = await fetch('/api/history');
+            const response = await fetch(`${API_BASE}/api/history`);
             const history = await response.json();
             
             historyBody.innerHTML = '';
@@ -27,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${run.total_checked}</td>
                     <td><span style="color: #ff3333; font-weight: bold;">${run.incorrect_count}</span></td>
                     <td>
-                        <a href="/api/download/${run.id}?cb=${Date.now()}" class="history-dl-link">Download</a>
+                        <a href="${API_BASE}/api/download/${run.id}?cb=${Date.now()}" class="history-dl-link">Download</a>
                         ${hasData ? `<button class="btn-details" onclick="toggleDetails('${run.id}')">View Details</button>` : ''}
                     </td>
                 `;
