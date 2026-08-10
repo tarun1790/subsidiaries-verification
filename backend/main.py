@@ -58,9 +58,7 @@ app.add_middleware(
 
 import os
 # Ensure frontend directory exists for static files to mount successfully
-frontend_dir = os.path.join(os.path.dirname(__file__), "../frontend")
-if os.path.exists(frontend_dir):
-    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+frontend_dir = os.path.join(os.path.dirname(__file__), "../docs")
 
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
@@ -68,13 +66,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-@app.get("/")
-async def root():
-    return FileResponse(os.path.join(frontend_dir, "index.html"))
 
-@app.get("/history")
-async def history_page():
-    return FileResponse(os.path.join(frontend_dir, "history.html"))
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
@@ -387,6 +379,9 @@ async def download_file(run_id: str):
             }
         )
     return JSONResponse(content={"error": "File not found"}, status_code=404)
+
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="docs")
 
 if __name__ == "__main__":
     import uvicorn
