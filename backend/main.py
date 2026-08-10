@@ -137,28 +137,76 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     Entities to check:
     {entities_list_str}
     
-    IMPORTANT: You must use deep reasoning AND carefully read the Web Evidence provided for each entity. For example, if A is the parent, and B is a child of A, and C is a child of B, then C is considered an indirect subsidiary of A. 
-    
-    CRITICAL RULE 1: If the parent company has ANY holdings, stakes, investments, or majority acquisitions in the entity, you MUST consider it "related" and DO NOT mark it as incorrect. Even if the web search says the entity operates as an "independent" company or startup, if the parent owns a stake in it, it IS related.
-    
-    CRITICAL RULE 2: Pay close attention to geographical regions, country domains, or specific jurisdictions in the entity name. A company might have the exact same or similar name to a real subsidiary, but if it operates in a different country/domain and has DIFFERENT investors or owners (meaning the parent company has NO stake in this specific foreign entity), you MUST mark it as INCORRECT (NOT related).
-    
-    CRITICAL RULE 3: Just because an entity shares a similar name with the parent company DOES NOT mean they are related (e.g. 'Apple Inc' vs 'Apple Plumbing'). You must find logical evidence or reasoning that the parent company directly or indirectly holds shares, stakes, or ownership in the entity. If there is no evidence or logical link of ownership/investment, mark it as INCORRECT (NOT related).
-    
-    Your task is to determine which of these entities are NOT related to the parent company in ANY way.
-    
-    Respond strictly in JSON format. The JSON should be an array of objects for ONLY the entities that are INCORRECT (NOT related).
-    If an entity is related in any way (including investments/stakes), DO NOT include it in the JSON array.
+    "Is Entity X actually related to Parent Company Y?"
+
+    Do NOT answer this based on the entity name.
+    Do NOT assume ownership because:
+    - The companies operate in the same industry.
+    - They operate in the same country.
+    - Their names are similar.
+    - One company mentions the other.
+    - They have a commercial partnership.
+    - They distribute each other's products.
+    - They have customers or suppliers in common.
+    - They appear together in search results.
+
+    A corporate relationship must be established by evidence.
+
+    RELATIONSHIP TYPES
+    Determine the actual relationship from the following categories:
+
+    1. DIRECT_SUBSIDIARY: The specified parent directly owns or controls the entity.
+    2. INDIRECT_SUBSIDIARY: The specified parent ultimately controls the entity through one or more intermediate subsidiaries.
+    3. SISTER_COMPANY: Both are controlled by the same ultimate parent, but the specified parent does not control the entity. (NOT a subsidiary).
+    4. PARENT_COMPANY: The entity is actually the parent of the specified company. (NOT a subsidiary).
+    5. BRAND: The entity is a brand or trademark rather than a separate legal subsidiary. (NOT a subsidiary automatically).
+    6. BUSINESS_UNIT: An internal division rather than a separate legal entity.
+    7. JOINT_VENTURE: Jointly controlled or owned by multiple parties.
+    8. ASSOCIATED_COMPANY: The parent has an investment, significant influence, or strategic relationship.
+    9. FORMER_SUBSIDIARY: Previously owned, but no longer controlled. (NOT a current subsidiary).
+    10. ACQUIRED_COMPANY: Acquired and currently controlled by the parent. (Do not treat announced/proposed as completed).
+    11. DIVESTED_COMPANY: Parent previously owned but sold it. (NOT a subsidiary).
+    12. UNRELATED: No established corporate ownership or control relationship.
+    13. UNKNOWN: The available evidence is insufficient to determine the relationship. Do NOT guess.
+
+    VERIFICATION RULES
+    RULE 1 — INDEPENDENT VERIFICATION: Never assume the spreadsheet is correct. Independently determine the actual relationship first.
+    RULE 2 — OWNERSHIP IS DIFFERENT FROM EXISTENCE: Existence-only evidence is insufficient to prove ownership.
+    RULE 3 — OWNERSHIP MUST BE ESTABLISHED: Look for official parent-company pages, SEC filings, annual reports, etc.
+    RULE 4 — CURRENT RELATIONSHIP: Determine whether the relationship exists CURRENTLY.
+    RULE 5 — INDIRECT OWNERSHIP: Follow the ownership chain when evidence supports it.
+    RULE 6 — SISTER COMPANIES: Do not confuse common ownership with parent-child ownership.
+    RULE 7 — BRAND ≠ LEGAL ENTITY: A brand name does not automatically mean it is a legal subsidiary.
+    RULE 8 — ACQUISITION STATUS: Only completed control should establish current ownership.
+    RULE 9 — NAME SIMILARITY: Never infer ownership from similar names.
+    RULE 10 — LOCATION AND INDUSTRY: Same country/industry does not establish ownership.
+
+    EVIDENCE SUFFICIENCY
+    Before declaring a parent-child relationship, ask:
+    - Does the evidence identify the entity and parent?
+    - Does the evidence establish ownership or control?
+    - Is the relationship current?
+    If these conditions cannot be established, the relationship is UNKNOWN. Never fabricate a relationship.
+
+    DECISION LOGIC
+    Determine:
+    A. VERIFIED RELATIONSHIP: What is the entity's actual relationship?
+    B. VERIFIED PARENT: Who actually owns or controls the entity?
+    C. CLAIMED PARENT: What parent company does the spreadsheet claim?
+    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
+
+    Respond strictly in JSON format. The JSON should be an array of objects for ONLY the entities where MATCH is FALSE (i.e. they are NOT related/owned).
+    If an entity is a match, DO NOT include it in the JSON array.
     
     Format:
     [
       {{
         "name": "Exact Entity Name from the list",
-        "reason": "Brief explanation of why they are not related. If it is an independent company or owned by someone else, state who actually owns or operates it."
+        "reason": "Brief explanation detailing your findings from A, B, and C. State clearly who actually owns the entity."
       }}
     ]
     
-    If all entities are related, return an empty array [].
+    If all entities are a match, return an empty array [].
     Do not output any markdown formatting, only pure JSON.
     """
     
