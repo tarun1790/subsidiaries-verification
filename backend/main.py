@@ -255,6 +255,17 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     RULE 9 — NAME SIMILARITY: Never infer ownership from similar names.
     RULE 10 — LOCATION AND INDUSTRY: Same country/industry does not establish ownership.
 
+    CORPORATE ENTITY RULES
+    - Verify the candidate as a legal corporate entity before determining any parent relationship.
+    - Treat funds, REITs, products, apps, portals, brands, services, departments, and internal centers as NON_CORPORATE, unless separately proven to be incorporated entities.
+    - A company is a SUBSIDIARY only when ownership or control by the parent is explicitly supported by reliable evidence.
+    - Never infer ownership from branding, management, service provision, website presence, executive relationships, or name similarity.
+    - Prioritize the parent's annual report, audited financial statements, regulatory filings, and official corporate disclosures over search snippets.
+    - If the parent officially lists an entity as a subsidiary and provides an ownership percentage, classify it as SUBSIDIARY, even if it provides shared services or operates in an unrelated industry.
+    - Distinguish subsidiaries from associates and joint ventures; minority ownership without control must not be classified as a subsidiary.
+    - A subsidiary's products, apps, cards, funds, portals, and services do not automatically become subsidiaries themselves.
+    - Never reject a candidate because it is a fintech, HR, technology, real-estate, or foreign company if official evidence proves parent ownership/control.
+
     EVIDENCE SUFFICIENCY
     Before declaring a parent-child relationship, ask:
     - Does the evidence identify the entity and parent?
