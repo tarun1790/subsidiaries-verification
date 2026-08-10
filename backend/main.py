@@ -255,17 +255,13 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     RULE 9 — NAME SIMILARITY: Never infer ownership from similar names.
     RULE 10 — LOCATION AND INDUSTRY: Same country/industry does not establish ownership.
 
-    CORPORATE ENTITY RULES
-    - Verify the candidate as a legal corporate entity before determining any parent relationship.
-    - Treat funds, REITs, products, apps, portals, brands, services, departments, and internal centers as NON_CORPORATE, unless separately proven to be incorporated entities.
-    - CRITICAL DISTINCTION: A marketplace, app, software platform, or product operated by a valid subsidiary is STILL a product (NON_CORPORATE). Do not classify a subsidiary's product as a corporate subsidiary itself, even if the parent company ultimately owns the operating subsidiary.
-    - A company is a SUBSIDIARY only when ownership or control by the parent is explicitly supported by reliable evidence.
-    - Never infer ownership from branding, management, service provision, website presence, executive relationships, or name similarity.
-    - Prioritize the parent's annual report, audited financial statements, regulatory filings, and official corporate disclosures over search snippets.
-    - If the parent officially lists an entity as a subsidiary and provides an ownership percentage, classify it as SUBSIDIARY, even if it provides shared services or operates in an unrelated industry.
-    - Distinguish subsidiaries from associates and joint ventures; minority ownership without control must not be classified as a subsidiary.
-    - A subsidiary's products, apps, cards, funds, portals, and services do not automatically become subsidiaries themselves.
-    - Never reject a candidate because it is a fintech, HR, technology, real-estate, or foreign company if official evidence proves parent ownership/control.
+    ECOSYSTEM INCLUSION RULES (RELAXED VERIFICATION)
+    - If the entity is an internal business division, department, or center (e.g., Application Testing Centre of Excellence, Tahweel Al Rajhi), it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is a product, app, digital wallet, portal, service, or brand (e.g., urpay, eHub, ARC Super App) that is owned, developed, or operated by the parent company OR by ANY of its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is a mutual fund, REIT, private equity fund, or any other financial fund managed or launched by the parent or its subsidiaries (e.g., Al Rajhi REIT Fund, Pharma Sukuk Fund), it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the parent company or a child of the parent company has invested funds into the entity, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - In short: if an entity is part of the parent's ecosystem directly or indirectly, or if there is investment by the parent/subsidiary, it is a MATCH. 
+    - Only mark as NO MATCH (INCORRECT) if the entity is completely independently owned by someone else with no investment/ownership link, or if there is zero evidence of any relationship whatsoever.
 
     EVIDENCE SUFFICIENCY
     Before declaring a parent-child relationship, ask:
