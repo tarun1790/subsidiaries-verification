@@ -178,7 +178,7 @@ async def scrape_url(url: str) -> str:
 async def fetch_search_data(entity: str, parent: str, sem) -> tuple[str, str]:
     """Uses Serper.dev and Playwright to fetch full web evidence."""
     async with sem:
-        query = f"{entity} {parent} (ownership OR subsidiary OR holdings OR investors OR stakes)"
+        query = f'"{entity}" "{parent}"'
         results = await asyncio.to_thread(_fetch_serper, query)
         
         evidence_parts = []
