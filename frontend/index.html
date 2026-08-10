@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subsidiaries Verification</title>
+    <meta name="description" content="Verify subsidiary relationships from an Excel upload.">
+    <link rel="stylesheet" href="/static/styles.css?v=2">
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-brand">Subsidiaries<span>AI</span></div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">Verify Tool</a>
+            <a href="/history" class="nav-link">Audit History</a>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <div class="header-banner">
+            <h2>Verify Subsidiaries</h2>
+            <p>Upload your LEMs Excel file and enter the Parent Company Name.</p>
+        </div>
+        
+        <div class="content-card form-card" style="margin: 0 auto;">
+            <form id="verify-form" class="upload-form">
+                <div class="input-group">
+                    <label for="parent-name">Parent Company Name</label>
+                    <input type="text" id="parent-name" name="parent_name" placeholder="Enter Parent Company..." required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="excel-file">LEMs Excel File</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="excel-file" name="file" accept=".xlsx, .xls" required>
+                        <div class="file-upload-display">
+                            <span id="file-name">Choose an Excel file...</span>
+                            <span class="btn-upload">Browse</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn-submit">
+                    <span>Verify Relationships</span>
+                    <div class="spinner hidden" id="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <div id="results-container" class="results-container hidden content-card mt-2" style="max-width: 800px; margin: 2rem auto;">
+            <h2>Analysis Results</h2>
+            <div class="results-summary">
+                <p>Total Checked: <span id="total-checked">0</span></p>
+                <p>Incorrect LEMs (Not Related): <span id="incorrect-count">0</span></p>
+            </div>
+            
+            <div id="download-container" class="download-container hidden">
+                <a id="download-link" href="#" class="btn-download" target="_blank">Download Marked Excel (Red)</a>
+            </div>
+
+            <ul id="incorrect-list" class="incorrect-list">
+                <!-- Results populated here -->
+            </ul>
+        </div>
+    </main>
+
+    <script src="/static/app.js?v=3"></script>
+</body>
+</html>

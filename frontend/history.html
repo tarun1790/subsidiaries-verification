@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit History - Subsidiaries Verification</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="page-layout">
+    
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-brand">Subsidiaries<span>AI</span></div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Verify Tool</a>
+            <a href="/history" class="nav-link active">Audit History</a>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <div class="header-banner">
+            <h2>Full Audit History</h2>
+            <p>A complete log of all past verifications. This dashboard fills the entire desktop site.</p>
+        </div>
+        
+        <div class="content-card full-page-card">
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Parent Company</th>
+                            <th>File Name</th>
+                            <th>Checked</th>
+                            <th>Incorrect</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <!-- History populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/history.js?v=3"></script>
+</body>
+</html>
