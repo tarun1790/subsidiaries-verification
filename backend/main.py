@@ -254,6 +254,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     RULE 8 — ACQUISITION STATUS: Only completed control should establish current ownership.
     RULE 9 — LOGICAL INFERENCE: If the web evidence is sparse, you MUST logically deduce if the entity is related to the parent, the parent's superparent (ultimate holding company), or if it is a branch/holding based on the entity's name and context (e.g. 'Metro Remittance' is clearly a branch of 'Metropolitan Bank').
     RULE 10 — LOCATION AND INDUSTRY: Same country/industry alone does not establish ownership.
+    RULE 11 — INTERNAL CORPORATE KNOWLEDGE: You MUST use your own internal AI knowledge of corporate history, acquisitions, and groups (e.g., knowing that Hirslanden or Grangettes belongs to Mediclinic). Do NOT reject an entity just because the provided web snippets are sparse if your internal knowledge confirms the relationship.
 
     ECOSYSTEM INCLUSION RULES (RELAXED VERIFICATION)
     - If the entity is an internal business division, department, or operational center, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
