@@ -284,7 +284,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     [
       {{
         "name": "Exact Entity Name from the list",
-        "reason": "Brief explanation detailing your findings from A, B, and C. State clearly who actually owns the entity."
+        "reason": "DO NOT write 'insufficient evidence'. Explicitly describe what the entity actually is (e.g., 'An independent software company') and name its ACTUAL parent or owner based on the web evidence."
       }}
     ]
     
