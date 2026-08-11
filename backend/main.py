@@ -246,7 +246,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     VERIFICATION RULES
     RULE 1 — INDEPENDENT VERIFICATION: Never assume the spreadsheet is correct. Independently determine the actual relationship first.
     RULE 2 — OWNERSHIP IS DIFFERENT FROM EXISTENCE: Existence-only evidence is insufficient to prove ownership.
-    RULE 3 — OWNERSHIP MUST BE ESTABLISHED: Look for official parent-company pages, SEC filings, annual reports, etc.
+    RULE 3 — ESTABLISH RELATIONSHIP: You do NOT need official documents (like SEC filings) if the general web evidence clearly shows the entity is part of the parent's ecosystem, a product, or an investment. Use your understanding of the web search snippets.
     RULE 4 — CURRENT RELATIONSHIP: Determine whether the relationship exists CURRENTLY.
     RULE 5 — INDIRECT OWNERSHIP: Follow the ownership chain when evidence supports it.
     RULE 6 — SISTER COMPANIES: Do not confuse common ownership with parent-child ownership.
