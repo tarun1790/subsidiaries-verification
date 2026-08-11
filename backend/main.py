@@ -252,8 +252,8 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     RULE 6 — SISTER COMPANIES: Do not confuse common ownership with parent-child ownership.
     RULE 7 — BRAND ≠ LEGAL ENTITY: A brand name does not automatically mean it is a legal subsidiary.
     RULE 8 — ACQUISITION STATUS: Only completed control should establish current ownership.
-    RULE 9 — NAME SIMILARITY: Never infer ownership from similar names.
-    RULE 10 — LOCATION AND INDUSTRY: Same country/industry does not establish ownership.
+    RULE 9 — LOGICAL INFERENCE: If the web evidence is sparse, you MUST logically deduce if the entity is related to the parent, the parent's superparent (ultimate holding company), or if it is a branch/holding based on the entity's name and context (e.g. 'Metro Remittance' is clearly a branch of 'Metropolitan Bank').
+    RULE 10 — LOCATION AND INDUSTRY: Same country/industry alone does not establish ownership.
 
     ECOSYSTEM INCLUSION RULES (RELAXED VERIFICATION)
     - If the entity is an internal business division, department, or operational center, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
@@ -267,14 +267,15 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     Before declaring a relationship, ask:
     - Does the evidence identify the entity and parent?
     - Does the evidence establish ecosystem inclusion, ownership, investment, or control?
-    If neither ownership, investment, nor ecosystem inclusion can be established, the relationship is UNKNOWN. Never fabricate a relationship.
+    - Can a relationship to the parent or a superparent be logically deduced from the entity name and context?
+    If there is absolutely zero evidence and no logical inference can be made, the relationship is UNKNOWN. However, if a relationship can be reasonably inferred, classify it as a MATCH.
 
     DECISION LOGIC
     Determine:
     A. VERIFIED RELATIONSHIP: What is the entity's actual relationship?
     B. VERIFIED PARENT: Who actually owns, operates, or invested in the entity?
     C. CLAIMED PARENT: What parent company does the spreadsheet claim?
-    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired, Ecosystem Product/Fund/Investment = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
+    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired, Ecosystem Product/Fund/Investment, Superparent/Holding Relationship, or Logically Inferred = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
 
     Respond strictly in JSON format. The JSON should be an array of objects for ONLY the entities where MATCH is FALSE (i.e. they are NOT related/owned).
     If an entity is a match, DO NOT include it in the JSON array.
