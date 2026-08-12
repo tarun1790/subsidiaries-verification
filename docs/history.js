@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             history.forEach(run => {
                 const tr = document.createElement('tr');
-                const hasData = run.incorrect_lems && run.incorrect_lems.length > 0;
+                const hasData = (run.all_lems && run.all_lems.length > 0) || (run.incorrect_lems && run.incorrect_lems.length > 0);
                 
                 tr.innerHTML = `
                     <td>${new Date(run.timestamp).toLocaleString()}</td>
@@ -41,9 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     detailsTr.id = `details-${run.id}`;
                     detailsTr.className = 'details-row hidden';
                     
-                    let tableRows = run.incorrect_lems.map(lem => `
+                    const displayData = run.all_lems || run.incorrect_lems;
+                    let tableRows = displayData.map(lem => `
                         <tr>
-                            <td>${lem.name}</td>
+                            <td style="border-left: 4px solid ${lem.is_match === false ? 'var(--error-color)' : (lem.is_match === true ? 'var(--success-color)' : 'transparent')}">${lem.name}</td>
+                            <td>${lem.is_match !== undefined ? (lem.is_match ? 'MATCH' : 'NO MATCH') : 'NO MATCH'}</td>
+                            <td>${lem.confidence ? lem.confidence.toUpperCase() : 'N/A'}</td>
                             <td>${lem.reason}</td>
                         </tr>
                     `).join('');
@@ -51,11 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     detailsTr.innerHTML = `
                         <td colspan="6">
                             <div class="details-container">
-                                <h4>Incorrect Entities Found</h4>
+                                <h4>Verification Results</h4>
                                 <table class="details-table">
                                     <thead>
                                         <tr>
                                             <th>Entity Name</th>
+                                            <th>Status</th>
+                                            <th>Confidence</th>
                                             <th>Reasoning</th>
                                         </tr>
                                     </thead>

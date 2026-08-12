@@ -297,18 +297,20 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     C. CLAIMED PARENT: What parent company does the spreadsheet claim?
     D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired, Ecosystem Product/Fund/Investment, Superparent/Holding Relationship, or Logically Inferred = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
 
-    Respond strictly in JSON format. The JSON should be an array of objects for ONLY the entities where MATCH is FALSE (i.e. they are NOT related/owned).
-    If an entity is a match, DO NOT include it in the JSON array.
+    Respond strictly in JSON format. The JSON should be an array of objects for EVERY entity provided in the chunk (both matches and non-matches).
     
     Format:
     [
       {{
         "name": "Exact Entity Name from the list",
-        "reason": "DO NOT write 'insufficient evidence'. Explicitly describe what the entity actually is (e.g., 'An independent software company') and name its ACTUAL parent or owner based on the web evidence."
+        "is_match": true or false,
+        "confidence": "high, medium, low, or none",
+        "evidence": "Briefly state the specific evidence or internal knowledge cited (e.g. 'Google Knowledge Graph states 100% owned', or 'Internal knowledge confirms it is a division of XYZ').",
+        "reason": "Detailed explanation of why it is or isn't a match. Do not use boilerplate text. If not a match, name the ACTUAL parent or owner."
       }}
     ]
     
-    If all entities are a match, return an empty array [].
+    Do not skip any entities. Every entity in the chunk must have a corresponding object in the JSON array.
     Do not output any markdown formatting, only pure JSON.
     """
     
@@ -429,7 +431,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             
         logger.info("Scraping completed. Analyzing with Gemini in chunks of 50...")
         
-        incorrect_lems = []
+        all_lems = []
         total_tokens_used = 0
         chunk_size = 50
         
@@ -442,39 +444,51 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             # If a chunk fails, it returns a dict with name "Error"
             for item in chunk_results:
                 if item.get("name") != "Error":
-                    incorrect_lems.append(item)
+                    all_lems.append(item)
                     
-        # Highlight incorrect entities in red in the Excel file and add reason
+        # Highlight entities in the Excel file and add new columns
         red_fill = PatternFill(start_color="FFFF0000", end_color="FFFF0000", fill_type="solid")
+        green_fill = PatternFill(start_color="FF00FF00", end_color="FF00FF00", fill_type="solid")
         
-        # Build a map from lowercase name to the reason string
-        reason_map = {}
-        for item in incorrect_lems:
+        # Build a map from lowercase name to the result object
+        result_map = {}
+        for item in all_lems:
             ent_name = item.get('name', item.get('entity', item.get('company', '')))
             if ent_name:
-                reason_map[ent_name.lower()] = item.get('reason', 'No reason provided')
+                result_map[ent_name.lower()] = item
         
-        # Find the next empty column to append reasons without overwriting existing data
-        reason_col_idx = ws.max_column + 1
+        # Find the next empty column to append details without overwriting existing data
+        start_col_idx = ws.max_column + 1
         
-        # Add header for the reason column
-        ws.cell(row=1, column=reason_col_idx, value="Reason (Incorrect)")
+        # Add headers for the new columns
+        ws.cell(row=1, column=start_col_idx, value="Match Status")
+        ws.cell(row=1, column=start_col_idx + 1, value="Confidence")
+        ws.cell(row=1, column=start_col_idx + 2, value="Evidence")
+        ws.cell(row=1, column=start_col_idx + 3, value="Reason")
         
-        for row in ws.iter_rows(min_row=1, min_col=entity_col_idx, max_col=entity_col_idx):
+        for row in ws.iter_rows(min_row=2, min_col=entity_col_idx, max_col=entity_col_idx):
             cell = row[0]
             if cell.value:
                 val_lower = str(cell.value).lower()
-                if val_lower in reason_map:
-                    cell.fill = red_fill
-                    # Write reason in the new column
-                    reason_cell = ws.cell(row=cell.row, column=reason_col_idx)
-                    reason_cell.value = reason_map[val_lower]
+                if val_lower in result_map:
+                    res = result_map[val_lower]
+                    is_match = res.get('is_match', False)
+                    cell.fill = green_fill if is_match else red_fill
+                    
+                    # Write details in the new columns
+                    ws.cell(row=cell.row, column=start_col_idx).value = "MATCH" if is_match else "NO MATCH"
+                    ws.cell(row=cell.row, column=start_col_idx + 1).value = str(res.get('confidence', 'none')).upper()
+                    ws.cell(row=cell.row, column=start_col_idx + 2).value = res.get('evidence', '')
+                    ws.cell(row=cell.row, column=start_col_idx + 3).value = res.get('reason', '')
                 
         run_id = str(uuid.uuid4())
         output_filename = f"marked_{run_id}.xlsx"
         output_path = os.path.join(DOWNLOADS_DIR, output_filename)
         wb.save(output_path)
         
+        incorrect_count = sum(1 for x in all_lems if not x.get('is_match', False))
+        incorrect_lems = [x for x in all_lems if not x.get('is_match', False)]
+
         # Log to history
         history = load_history()
         history.insert(0, {
@@ -483,13 +497,15 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             "parent_name": parent_name,
             "filename": file.filename,
             "total_checked": len(entities),
-            "incorrect_count": len(incorrect_lems),
+            "incorrect_count": incorrect_count,
             "tokens_used": total_tokens_used,
-            "incorrect_lems": incorrect_lems  # Save the actual scan data
+            "incorrect_lems": incorrect_lems, # Keep for backwards compatibility
+            "all_lems": all_lems  # Save the full detailed scan data
         })
         save_history(history)
                 
         return JSONResponse(content={
+            "all_lems": all_lems,
             "incorrect_lems": incorrect_lems, 
             "total_checked": len(entities),
             "download_url": f"/api/download/{run_id}",

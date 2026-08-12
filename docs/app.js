@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('results-container');
     const totalChecked = document.getElementById('total-checked');
     const incorrectCount = document.getElementById('incorrect-count');
-    const incorrectList = document.getElementById('incorrect-list');
+    const resultsList = document.getElementById('results-list');
     
     const downloadContainer = document.getElementById('download-container');
     const downloadLink = document.getElementById('download-link');
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset state
         resultsContainer.classList.add('hidden');
         downloadContainer.classList.add('hidden');
-        incorrectList.innerHTML = '';
+        resultsList.innerHTML = '';
         
         // UI loading state
         submitBtn.disabled = true;
@@ -59,41 +59,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalChecked.textContent = data.total_checked;
                 incorrectCount.textContent = data.incorrect_lems.length;
                 
-                // Provide download link
-                if (data.incorrect_lems.length > 0) {
+                // Provide download link (Always available now)
+                if (data.all_lems && data.all_lems.length > 0) {
                     downloadContainer.classList.remove('hidden');
                     downloadLink.href = `${API_BASE}${data.download_url}?cb=${Date.now()}`; 
                 }
                 
                 // (History is now loaded on the separate /history page, no need to refresh it here)
                 
-                if (data.incorrect_lems.length === 0) {
+                if (!data.all_lems || data.all_lems.length === 0) {
                     const li = document.createElement('li');
-                    li.textContent = "All entities are related!";
-                    li.style.backgroundColor = "rgba(51, 255, 51, 0.1)";
-                    li.style.borderLeftColor = "var(--success-color)";
-                    li.style.setProperty('--error-color', 'var(--success-color)');
-                    li.classList.add('success');
-                    incorrectList.appendChild(li);
+                    li.textContent = "No entities found.";
+                    resultsList.appendChild(li);
                 } else {
-                    data.incorrect_lems.forEach(lemObj => {
+                    data.all_lems.forEach(lemObj => {
                         const li = document.createElement('li');
+                        const isMatch = lemObj.is_match;
+                        
+                        if (isMatch) {
+                            li.style.backgroundColor = "rgba(51, 255, 51, 0.1)";
+                            li.style.borderLeftColor = "var(--success-color, #2ecc71)";
+                        } else {
+                            li.style.backgroundColor = "rgba(255, 51, 51, 0.1)";
+                            li.style.borderLeftColor = "var(--error-color, #ff4757)";
+                        }
                         
                         const textDiv = document.createElement('div');
                         textDiv.classList.add('result-text');
                         
                         const title = document.createElement('strong');
-                        title.textContent = lemObj.name;
+                        title.textContent = `${lemObj.name} - ${isMatch ? "MATCH" : "NO MATCH"}`;
+                        
+                        const meta = document.createElement('p');
+                        meta.style.fontSize = "0.85em";
+                        meta.style.color = "#a0a0a0";
+                        meta.style.marginBottom = "8px";
+                        meta.textContent = `Confidence: ${lemObj.confidence ? lemObj.confidence.toUpperCase() : 'N/A'} | Evidence: ${lemObj.evidence || 'N/A'}`;
                         
                         const reason = document.createElement('p');
                         reason.classList.add('result-reason');
                         reason.textContent = lemObj.reason;
                         
                         textDiv.appendChild(title);
+                        textDiv.appendChild(meta);
                         textDiv.appendChild(reason);
                         
                         li.appendChild(textDiv);
-                        incorrectList.appendChild(li);
+                        resultsList.appendChild(li);
                     });
                 }
                 
