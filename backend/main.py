@@ -135,6 +135,25 @@ def _fetch_serper(query: str) -> list:
                 
             data = response.json()
             results = []
+            
+            # Extract Google Answer Box (AI Overview / Direct Answer)
+            if "answerBox" in data:
+                ans = data["answerBox"]
+                if "snippet" in ans:
+                    results.append({"snippet": f"Google Answer Box: {ans['snippet']}", "link": ans.get("link", "")})
+                elif "answer" in ans:
+                    results.append({"snippet": f"Google Answer Box: {ans['answer']}", "link": ans.get("link", "")})
+            
+            # Extract Google Knowledge Graph
+            if "knowledgeGraph" in data:
+                kg = data["knowledgeGraph"]
+                kg_text = f"Google Knowledge Graph: Title: {kg.get('title', '')} | Type: {kg.get('type', '')} | Desc: {kg.get('description', '')}"
+                attrs = kg.get("attributes", {})
+                if isinstance(attrs, dict):
+                    for k, v in attrs.items():
+                        kg_text += f" | {k}: {v}"
+                results.append({"snippet": kg_text, "link": kg.get("descriptionLink", "")})
+
             for result in data.get("organic", [])[:2]:
                 if "link" in result:
                     results.append({
