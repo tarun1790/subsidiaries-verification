@@ -1,13 +1,13 @@
 :root {
-    --bg-gradient: linear-gradient(135deg, #09090b 0%, #1e1b4b 100%);
-    --text-color: #ffffff;
-    --accent-color: #00e5ff;
-    --accent-hover: #00b8cc;
-    --accent-text: #000000;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --glass-bg: rgba(20, 20, 25, 0.6);
-    --error-color: #ff3366;
-    --success-color: #00ffa3;
+    --bg-gradient: radial-gradient(circle at 50% 0%, #1f1035, #050505 80%);
+    --text-color: #f1f5f9;
+    --accent-color: #8b5cf6;
+    --accent-hover: #a78bfa;
+    --accent-text: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --error-color: #f43f5e;
+    --success-color: #10b981;
 }
 
 * {
@@ -110,12 +110,12 @@ body {
 
 .content-card {
     background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 1.5rem 2rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    box-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.5);
 }
 
 .form-card {
@@ -171,7 +171,7 @@ input[type="text"] {
 
 input[type="text"]:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
     background: rgba(0, 0, 0, 0.4);
 }
 
@@ -229,7 +229,7 @@ input[type="file"] {
 }
 
 .btn-submit {
-    background: linear-gradient(90deg, var(--accent-color), #00ffcc);
+    background: linear-gradient(90deg, #8b5cf6, #ec4899);
     color: var(--accent-text);
     border: none;
     padding: 1.2rem;
@@ -240,19 +240,19 @@ input[type="file"] {
     letter-spacing: 2px;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 1rem;
     margin-top: 1.5rem;
-    box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
 }
 
 .btn-submit:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(0, 229, 255, 0.5);
-    background: linear-gradient(90deg, #00ffcc, var(--accent-color));
+    box-shadow: 0 15px 40px rgba(236, 72, 153, 0.5);
+    background: linear-gradient(90deg, #ec4899, #8b5cf6);
 }
 
 .btn-submit:active {
