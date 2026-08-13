@@ -351,7 +351,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     RULE 11 — INTERNAL CORPORATE KNOWLEDGE: You MUST use your own internal AI knowledge of corporate history, acquisitions, and groups. Do NOT reject an entity just because the provided web snippets are sparse if your internal knowledge confirms the relationship.
 
     ECOSYSTEM INCLUSION RULES (RELAXED VERIFICATION)
-    - If the entity is a generic topic, subject, or service that the parent company teaches or provides (e.g., 'Minority languages' for an education company), it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is a generic topic, subject, or service that the parent company provides or teaches, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the entity is an internal business division, department, or operational center, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the entity is a product, app, digital wallet, portal, service, or brand that is owned, developed, or operated by the parent company OR by ANY of its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the entity is a mutual fund, REIT, private equity fund, or any other financial fund managed or launched by the parent, its subsidiaries, or its founders, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
