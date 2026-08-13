@@ -44,7 +44,32 @@ document.addEventListener('DOMContentLoaded', () => {
         btnText.textContent = 'Verifying...';
         spinner.classList.remove('hidden');
         
+        const progressWrapper = document.getElementById('progress-wrapper');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        
+        progressWrapper.classList.remove('hidden');
+        progressBar.style.width = '0%';
+        progressText.textContent = 'Initializing...';
+        
+        const clientId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
         const formData = new FormData(form);
+        formData.append('client_id', clientId);
+        
+        let wsUrl = API_BASE ? API_BASE.replace('http', 'ws') : `ws://${window.location.host}`;
+        const ws = new WebSocket(`${wsUrl}/ws/progress/${clientId}`);
+        
+        ws.onmessage = (event) => {
+            try {
+                const msg = JSON.parse(event.data);
+                if (msg.progress) {
+                    progressBar.style.width = `${msg.progress}%`;
+                }
+                if (msg.step) {
+                    progressText.textContent = msg.step;
+                }
+            } catch(e) {}
+        };
         
         try {
             const response = await fetch(`${API_BASE}/api/verify`, {
@@ -117,10 +142,17 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Network Error: Could not connect to the server.');
             console.error(error);
         } finally {
-            // Restore UI state
             submitBtn.disabled = false;
             btnText.textContent = 'Verify Relationships';
             spinner.classList.add('hidden');
+            
+            if (typeof ws !== 'undefined' && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+            setTimeout(() => {
+                const progressWrapper = document.getElementById('progress-wrapper');
+                if (progressWrapper) progressWrapper.classList.add('hidden');
+            }, 1000);
         }
     });
 });

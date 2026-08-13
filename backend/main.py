@@ -85,7 +85,40 @@ if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
 app = FastAPI()
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: dict[str, WebSocket] = {}
+
+    async def connect(self, websocket: WebSocket, client_id: str):
+        await websocket.accept()
+        self.active_connections[client_id] = websocket
+
+    def disconnect(self, client_id: str):
+        if client_id in self.active_connections:
+            del self.active_connections[client_id]
+
+    async def send_personal_message(self, message: dict, client_id: str):
+        if client_id and client_id in self.active_connections:
+            try:
+                await self.active_connections[client_id].send_json(message)
+            except Exception as e:
+                pass
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/progress/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await manager.connect(websocket, client_id)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(client_id)
+
 
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
@@ -414,7 +447,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     return [{"name": "Error", "reason": "Failed to analyze batch due to API error across all models."}], 0
 
 @app.post("/api/verify")
-async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = File(...)):
+async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = File(...), client_id: str = Form(None)):
     try:
         contents = await file.read()
         
@@ -462,6 +495,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             return JSONResponse(content={"incorrect_lems": [], "total_checked": 0})
             
         # 1. Check Cache First
+        if client_id: await manager.send_personal_message({"step": "Checking Cache...", "progress": 10}, client_id)
         all_lems = []
         uncached_entities = []
         for entity in entities:
@@ -476,6 +510,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
         total_tokens_used = 0
         
         if uncached_entities:
+            if client_id: await manager.send_personal_message({"step": f"Searching Web for {len(uncached_entities)} entities...", "progress": 30}, client_id)
             logger.info(f"Searching web concurrently via Serper for {len(uncached_entities)} entities...")
             search_results = {}
             sem = asyncio.Semaphore(4) # Serper Free tier allows lower QPS, reduced to 4
@@ -486,6 +521,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                 search_results[ent] = data
                 
             logger.info("Scraping completed. Analyzing with Gemini in chunks of 50...")
+            if client_id: await manager.send_personal_message({"step": "Analyzing web data with Gemini...", "progress": 50}, client_id)
             
             chunk_size = 50
             for i in range(0, len(uncached_entities), chunk_size):
@@ -511,6 +547,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                 
                 # Second pass (Deep Research Fallback)
                 if low_confidence_entities:
+                    if client_id: await manager.send_personal_message({"step": f"Deep Research Fallback for {len(low_confidence_entities)} entities...", "progress": 75}, client_id)
                     logger.info(f"Triggering Deep Research Fallback for {len(low_confidence_entities)} low-confidence entities...")
                     deep_search_results = {}
                     sem2 = asyncio.Semaphore(4)
@@ -541,6 +578,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                             if ent_name:
                                 set_cached_result(parent_name, ent_name, item)
                     
+        if client_id: await manager.send_personal_message({"step": "Generating Excel report...", "progress": 90}, client_id)
         # Highlight entities in the Excel file and add new columns
         red_fill = PatternFill(start_color="FFFF0000", end_color="FFFF0000", fill_type="solid")
         green_fill = PatternFill(start_color="FF00FF00", end_color="FF00FF00", fill_type="solid")
@@ -599,6 +637,8 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
         })
         save_history(history)
                 
+        if client_id: await manager.send_personal_message({"step": "Complete", "progress": 100}, client_id)
+        
         return JSONResponse(content={
             "all_lems": all_lems,
             "incorrect_lems": incorrect_lems, 
