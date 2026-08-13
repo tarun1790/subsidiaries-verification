@@ -338,25 +338,26 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     13. UNKNOWN: The available evidence is insufficient to determine the relationship. Do NOT guess.
 
     VERIFICATION RULES
-    RULE 1 — INDEPENDENT VERIFICATION: Never assume the spreadsheet is correct. Independently determine the actual relationship first.
-    RULE 2 — OWNERSHIP IS DIFFERENT FROM EXISTENCE: Existence-only evidence is insufficient to prove ownership.
-    RULE 3 — ESTABLISH RELATIONSHIP: You do NOT need official documents (like SEC filings) if the general web evidence clearly shows the entity is part of the parent's ecosystem, a product, or an investment. Use your understanding of the web search snippets.
+    RULE 1 — EXTREME BENEFIT OF THE DOUBT: You MUST assume the provided spreadsheet is generally correct. If there is ANY conceivable link, you MUST classify it as a MATCH. Only mark as NO MATCH if you can definitively prove the entity belongs entirely to a known competitor with zero ties. When in doubt, default to MATCH.
+    RULE 2 — OWNERSHIP IS DIFFERENT FROM EXISTENCE: Existence-only evidence is insufficient to prove ownership, but refer to Rule 1.
+    RULE 3 — ESTABLISH RELATIONSHIP: You do NOT need official documents (like SEC filings). Use your understanding of the web search snippets.
     RULE 4 — CURRENT RELATIONSHIP: Determine whether the relationship exists CURRENTLY.
     RULE 5 — INDIRECT OWNERSHIP: Follow the ownership chain when evidence supports it.
     RULE 6 — SISTER COMPANIES: Do not confuse common ownership with parent-child ownership.
-    RULE 7 — BRAND ≠ LEGAL ENTITY: A brand name does not automatically mean it is a legal subsidiary.
+    RULE 7 — BRAND ≠ LEGAL ENTITY: A brand name does not automatically mean it is a legal subsidiary, but it STILL counts as a MATCH.
     RULE 8 — ACQUISITION STATUS: Only completed control should establish current ownership.
-    RULE 9 — LOGICAL INFERENCE: If the web evidence is sparse, you MUST logically deduce if the entity is related to the parent, the parent's superparent (ultimate holding company), or if it is a branch/holding based on the entity's name and context (e.g. 'Metro Remittance' is clearly a branch of 'Metropolitan Bank').
-    RULE 10 — LOCATION AND INDUSTRY: Same country/industry alone does not establish ownership.
-    RULE 11 — INTERNAL CORPORATE KNOWLEDGE: You MUST use your own internal AI knowledge of corporate history, acquisitions, and groups (e.g., knowing that Hirslanden or Grangettes belongs to Mediclinic). Do NOT reject an entity just because the provided web snippets are sparse if your internal knowledge confirms the relationship.
+    RULE 9 — LOGICAL INFERENCE: If the web evidence is sparse, you MUST logically deduce if the entity is related to the parent based on context.
+    RULE 10 — LOCATION AND INDUSTRY: Same country/industry alone does not establish ownership, but refer to Rule 1.
+    RULE 11 — INTERNAL CORPORATE KNOWLEDGE: You MUST use your own internal AI knowledge of corporate history, acquisitions, and groups. Do NOT reject an entity just because the provided web snippets are sparse if your internal knowledge confirms the relationship.
 
     ECOSYSTEM INCLUSION RULES (RELAXED VERIFICATION)
+    - If the entity is a generic topic, subject, or service that the parent company teaches or provides (e.g., 'Minority languages' for an education company), it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the entity is an internal business division, department, or operational center, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the entity is a product, app, digital wallet, portal, service, or brand that is owned, developed, or operated by the parent company OR by ANY of its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
-    - If the entity is a mutual fund, REIT, private equity fund, or any other financial fund managed or launched by the parent or its subsidiaries, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
+    - If the entity is a mutual fund, REIT, private equity fund, or any other financial fund managed or launched by the parent, its subsidiaries, or its founders, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - If the parent company or a child of the parent company has invested funds into the entity, it MUST BE CLASSIFIED AS A MATCH (CORRECT).
     - In short: if an entity is part of the parent's ecosystem directly or indirectly, or if there is investment by the parent/subsidiary, it is a MATCH. 
-    - Only mark as NO MATCH (INCORRECT) if the entity is completely independently owned by someone else with no investment/ownership link, or if there is zero evidence of any relationship whatsoever.
+    - Only mark as NO MATCH (INCORRECT) if the entity is completely independently owned by a totally unrelated party or competitor.
 
     EVIDENCE SUFFICIENCY
     Before declaring a relationship, ask:
