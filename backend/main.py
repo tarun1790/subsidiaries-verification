@@ -494,14 +494,52 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                 chunk_results, tokens = analyze_relationships_batch(chunk, parent_name, search_results)
                 total_tokens_used += tokens
                 
-                # If a chunk fails, it returns a dict with name "Error"
+                # First pass
+                low_confidence_entities = []
                 for item in chunk_results:
                     if item.get("name") != "Error":
-                        all_lems.append(item)
-                        # Save to cache
+                        confidence = item.get("confidence", "").lower()
+                        is_match = item.get("is_match")
                         ent_name = item.get('name', item.get('entity', item.get('company', '')))
-                        if ent_name:
-                            set_cached_result(parent_name, ent_name, item)
+                        
+                        if confidence in ["low", "none"] and not is_match and ent_name:
+                            low_confidence_entities.append(ent_name)
+                        else:
+                            all_lems.append(item)
+                            if ent_name:
+                                set_cached_result(parent_name, ent_name, item)
+                
+                # Second pass (Deep Research Fallback)
+                if low_confidence_entities:
+                    logger.info(f"Triggering Deep Research Fallback for {len(low_confidence_entities)} low-confidence entities...")
+                    deep_search_results = {}
+                    sem2 = asyncio.Semaphore(4)
+                    
+                    async def fetch_deep(ent, parent, semaphore):
+                        async with semaphore:
+                            deep_query = f'"{ent}" AND ("subsidiary" OR "acquired" OR "owned by") "{parent}"'
+                            res = await asyncio.to_thread(_fetch_serper, deep_query)
+                            if not res:
+                                deep_query_2 = f'"{ent}" parent company owner'
+                                res = await asyncio.to_thread(_fetch_serper, deep_query_2)
+                            return (ent, res)
+                            
+                    deep_tasks = [fetch_deep(e, parent_name, sem2) for e in low_confidence_entities]
+                    deep_res = await asyncio.gather(*deep_tasks)
+                    
+                    for ent, data in deep_res:
+                        deep_search_results[ent] = data
+                        
+                    logger.info(f"Deep Search completed. Re-analyzing {len(low_confidence_entities)} entities...")
+                    deep_chunk_results, deep_tokens = analyze_relationships_batch(low_confidence_entities, parent_name, deep_search_results)
+                    total_tokens_used += deep_tokens
+                    
+                    for item in deep_chunk_results:
+                        if item.get("name") != "Error":
+                            all_lems.append(item)
+                            ent_name = item.get('name', item.get('entity', item.get('company', '')))
+                            if ent_name:
+                                set_cached_result(parent_name, ent_name, item)
                     
         # Highlight entities in the Excel file and add new columns
         red_fill = PatternFill(start_color="FFFF0000", end_color="FFFF0000", fill_type="solid")
