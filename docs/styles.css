@@ -88,13 +88,13 @@ body {
 
 /* Main Content */
 .page-content {
-    padding: 4rem 3rem;
+    padding: 1.5rem 3rem;
     min-height: calc(100vh - 85px);
 }
 
 .header-banner {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
 }
 
 .header-banner h2 {
@@ -114,12 +114,12 @@ body {
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    padding: 3rem;
+    padding: 1.5rem 2rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 .form-card {
-    max-width: 800px;
+    width: 100%;
 }
 
 .full-page-card {
