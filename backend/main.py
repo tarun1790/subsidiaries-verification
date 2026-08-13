@@ -28,6 +28,8 @@ DOWNLOADS_DIR = os.path.join(os.path.dirname(__file__), "downloads")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 HISTORY_FILE = os.path.join(os.path.dirname(__file__), "audit_history.json")
 
+import sqlite3
+
 def load_history():
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, "r") as f:
@@ -37,6 +39,46 @@ def load_history():
 def save_history(history):
     with open(HISTORY_FILE, "w") as f:
         json.dump(history, f, indent=4)
+
+# SQLite Caching Setup
+CACHE_DB = os.path.join(os.path.dirname(__file__), "cache.db")
+def init_db():
+    conn = sqlite3.connect(CACHE_DB)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS scan_cache (
+            parent TEXT,
+            entity TEXT,
+            result_json TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (parent, entity)
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def get_cached_result(parent, entity):
+    conn = sqlite3.connect(CACHE_DB)
+    cursor = conn.cursor()
+    cursor.execute('SELECT result_json FROM scan_cache WHERE parent=? AND entity=?', (parent, entity))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return json.loads(row[0])
+    return None
+
+def set_cached_result(parent, entity, result_dict):
+    conn = sqlite3.connect(CACHE_DB)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT OR REPLACE INTO scan_cache (parent, entity, result_json, timestamp)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    ''', (parent, entity, json.dumps(result_dict)))
+    conn.commit()
+    conn.close()
+
 
 # Fix for Windows console unicode printing errors
 if sys.platform == 'win32':
@@ -419,32 +461,47 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
         if not entities:
             return JSONResponse(content={"incorrect_lems": [], "total_checked": 0})
             
-        logger.info(f"Searching web concurrently via Serper for {len(entities)} entities...")
-        
-        search_results = {}
-        sem = asyncio.Semaphore(4) # Serper Free tier allows lower QPS, reduced to 4
-        tasks = [fetch_search_data(entity, parent_name, sem) for entity in entities]
-        results = await asyncio.gather(*tasks)
-        
-        for ent, data in results:
-            search_results[ent] = data
-            
-        logger.info("Scraping completed. Analyzing with Gemini in chunks of 50...")
-        
+        # 1. Check Cache First
         all_lems = []
-        total_tokens_used = 0
-        chunk_size = 50
+        uncached_entities = []
+        for entity in entities:
+            cached = get_cached_result(parent_name, entity)
+            if cached:
+                all_lems.append(cached)
+            else:
+                uncached_entities.append(entity)
+                
+        logger.info(f"{len(entities) - len(uncached_entities)} entities loaded from cache. {len(uncached_entities)} require web search.")
         
-        for i in range(0, len(entities), chunk_size):
-            chunk = entities[i:i + chunk_size]
-            logger.info(f"Sending chunk {i // chunk_size + 1} to Gemini...")
-            chunk_results, tokens = analyze_relationships_batch(chunk, parent_name, search_results)
-            total_tokens_used += tokens
+        total_tokens_used = 0
+        
+        if uncached_entities:
+            logger.info(f"Searching web concurrently via Serper for {len(uncached_entities)} entities...")
+            search_results = {}
+            sem = asyncio.Semaphore(4) # Serper Free tier allows lower QPS, reduced to 4
+            tasks = [fetch_search_data(entity, parent_name, sem) for entity in uncached_entities]
+            results = await asyncio.gather(*tasks)
             
-            # If a chunk fails, it returns a dict with name "Error"
-            for item in chunk_results:
-                if item.get("name") != "Error":
-                    all_lems.append(item)
+            for ent, data in results:
+                search_results[ent] = data
+                
+            logger.info("Scraping completed. Analyzing with Gemini in chunks of 50...")
+            
+            chunk_size = 50
+            for i in range(0, len(uncached_entities), chunk_size):
+                chunk = uncached_entities[i:i + chunk_size]
+                logger.info(f"Sending chunk {i // chunk_size + 1} to Gemini...")
+                chunk_results, tokens = analyze_relationships_batch(chunk, parent_name, search_results)
+                total_tokens_used += tokens
+                
+                # If a chunk fails, it returns a dict with name "Error"
+                for item in chunk_results:
+                    if item.get("name") != "Error":
+                        all_lems.append(item)
+                        # Save to cache
+                        ent_name = item.get('name', item.get('entity', item.get('company', '')))
+                        if ent_name:
+                            set_cached_result(parent_name, ent_name, item)
                     
         # Highlight entities in the Excel file and add new columns
         red_fill = PatternFill(start_color="FFFF0000", end_color="FFFF0000", fill_type="solid")
