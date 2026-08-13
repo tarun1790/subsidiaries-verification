@@ -4,22 +4,41 @@ document.addEventListener('DOMContentLoaded', () => {
     // Dynamic API Base URL for GitHub Pages
     const API_BASE = window.location.hostname === 'tarun1790.github.io' ? 'http://127.0.0.1:8000' : '';
     
+    let allHistoryData = [];
+    
     // Load history immediately on page load
     loadHistory();
     
     async function loadHistory() {
         try {
             const response = await fetch(`${API_BASE}/api/history`);
-            const history = await response.json();
+            allHistoryData = await response.json();
+            renderHistory(allHistoryData);
+        } catch (error) {
+            console.error('Failed to load history', error);
+            historyBody.innerHTML = '<tr><td colspan="6" class="history-empty" style="text-align: center; color: var(--error-color);">Failed to load history.</td></tr>';
+        }
+    }
+    
+    document.getElementById('history-search').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allHistoryData.filter(run => 
+            (run.parent_name && run.parent_name.toLowerCase().includes(term)) ||
+            (run.file_name && run.file_name.toLowerCase().includes(term)) ||
+            (run.filename && run.filename.toLowerCase().includes(term))
+        );
+        renderHistory(filtered);
+    });
+
+    function renderHistory(data) {
+        historyBody.innerHTML = '';
+        
+        if (data.length === 0) {
+            historyBody.innerHTML = '<tr><td colspan="6" class="history-empty" style="text-align: center; padding: 2rem; color: #888888;">No history found.</td></tr>';
+            return;
+        }
             
-            historyBody.innerHTML = '';
-            
-            if (history.length === 0) {
-                historyBody.innerHTML = '<tr><td colspan="6" class="history-empty" style="text-align: center; padding: 2rem; color: #a0a0a0;">No history found. Run a verification first!</td></tr>';
-                return;
-            }
-            
-            history.forEach(run => {
+            data.forEach(run => {
                 const tr = document.createElement('tr');
                 const hasData = (run.all_lems && run.all_lems.length > 0) || (run.incorrect_lems && run.incorrect_lems.length > 0);
                 
@@ -73,11 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     historyBody.appendChild(detailsTr);
                 }
-            });
-        } catch (error) {
-            console.error('Failed to load history', error);
-            historyBody.innerHTML = '<tr><td colspan="6" class="history-empty" style="text-align: center; color: red;">Failed to load history.</td></tr>';
-        }
+        });
     }
 });
 

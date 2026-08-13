@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadContainer = document.getElementById('download-container');
     const downloadLink = document.getElementById('download-link');
     
+    let resultsChart = null; // Global chart instance
+    
     // Dynamic API Base URL for GitHub Pages
     const API_BASE = window.location.hostname === 'tarun1790.github.io' ? 'http://127.0.0.1:8000' : '';
     
@@ -81,8 +83,40 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (response.ok) {
                 // Display results
-                totalChecked.textContent = data.total_checked;
-                incorrectCount.textContent = data.incorrect_lems.length;
+                const total = data.total_checked;
+                const incorrect = data.incorrect_lems.length;
+                const correct = total - incorrect;
+                
+                totalChecked.textContent = total;
+                incorrectCount.textContent = incorrect;
+                
+                // Update Chart
+                const ctx = document.getElementById('resultsChart').getContext('2d');
+                if (resultsChart) {
+                    resultsChart.destroy();
+                }
+                resultsChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Match (Correct)', 'No Match (Incorrect)'],
+                        datasets: [{
+                            data: [correct, incorrect],
+                            backgroundColor: ['#30a46c', '#e5484d'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#ededed' }
+                            }
+                        }
+                    }
+                });
                 
                 // Provide download link (Always available now)
                 if (data.all_lems && data.all_lems.length > 0) {

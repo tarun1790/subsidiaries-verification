@@ -64,6 +64,10 @@
                 <p>Incorrect (No Match): <span id="incorrect-count">0</span></p>
             </div>
             
+            <div class="chart-container" style="position: relative; height:250px; width:100%; margin: 2rem 0;">
+                <canvas id="resultsChart"></canvas>
+            </div>
+            
             <div id="download-container" class="download-container hidden">
                 <a id="download-link" href="#" class="btn-download" target="_blank">Download Detailed Excel Report</a>
             </div>
@@ -74,6 +78,7 @@
         </div>
     </main>
 
-    <script src="./app.js?v=3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./app.js?v=4"></script>
 </body>
 </html>
