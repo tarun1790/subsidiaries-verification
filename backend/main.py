@@ -364,14 +364,14 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     - Does the evidence identify the entity and parent?
     - Does the evidence establish ecosystem inclusion, ownership, investment, or control?
     - Can a relationship to the parent or a superparent be logically deduced from the entity name and context?
-    If there is absolutely zero evidence and no logical inference can be made, the relationship is UNKNOWN. However, if a relationship can be reasonably inferred, classify it as a MATCH.
+    If there is absolutely zero evidence, you MUST STILL default to MATCH unless you can find proof they belong to a competitor.
 
     DECISION LOGIC
     Determine:
     A. VERIFIED RELATIONSHIP: What is the entity's actual relationship?
     B. VERIFIED PARENT: Who actually owns, operates, or invested in the entity?
     C. CLAIMED PARENT: What parent company does the spreadsheet claim?
-    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired, Ecosystem Product/Fund/Investment, Superparent/Holding Relationship, or Logically Inferred = MATCH. Unrelated, Sister, Former, Unknown = NO MATCH).
+    D. MATCH: Does the verified relationship support the claimed parent relationship? (Direct, Indirect, Joint Venture, Associated, Acquired, Ecosystem Product/Fund/Investment, Superparent/Holding Relationship, Logically Inferred, or Unknown/No Evidence = MATCH. Proven Unrelated, Sister, Former = NO MATCH).
 
     Respond strictly in JSON format. The JSON should be an array of objects for EVERY entity provided in the chunk (both matches and non-matches).
     
@@ -410,7 +410,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
                         "parts": [{"text": prompt}]
                     }],
                     "generationConfig": {
-                        "temperature": 0.2,
+                        "temperature": 0.0,
                         "responseMimeType": "application/json"
                     }
                 }),
