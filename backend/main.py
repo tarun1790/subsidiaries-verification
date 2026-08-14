@@ -581,8 +581,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                     
         if client_id: await manager.send_personal_message({"step": "Generating Excel report...", "progress": 90}, client_id)
         # Highlight entities in the Excel file and add new columns
-        red_fill = PatternFill(start_color="FFFF0000", end_color="FFFF0000", fill_type="solid")
-        green_fill = PatternFill(start_color="FF00FF00", end_color="FF00FF00", fill_type="solid")
+        orange_fill = PatternFill(start_color="FFFFD580", end_color="FFFFD580", fill_type="solid")
         
         # Build a map from lowercase name to the result object
         result_map = {}
@@ -607,7 +606,8 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                 if val_lower in result_map:
                     res = result_map[val_lower]
                     is_match = res.get('is_match', False)
-                    cell.fill = green_fill if is_match else red_fill
+                    if not is_match:
+                        cell.fill = orange_fill
                     
                     # Write details in the new columns
                     ws.cell(row=cell.row, column=start_col_idx).value = "MATCH" if is_match else "NO MATCH"
