@@ -17,8 +17,8 @@ async def generate_pdf():
         
         await page.goto(html_path, wait_until="networkidle")
         
-        # Wait for Mermaid JS to render the mindmap
-        await page.wait_for_timeout(2000)
+        # Wait for Mermaid JS to render the sequence diagram
+        await page.wait_for_timeout(3000)
         
         pdf_path = os.path.join(current_dir, "Subsidiaries_Verification_AI_Documentation.pdf")
         await page.pdf(
