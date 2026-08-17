@@ -185,7 +185,33 @@
     <h3>Step 6: Excel Generation & Export</h3>
     <p>Once all entities are processed, the backend maps the AI results back to the exact rows in the original Excel file. For entities marked <code>is_match = False</code>, the cell background is highlighted in <strong>Light Orange</strong> (Hex: <code>#FFFFD580</code>). Finally, the <code>source_link</code> is written into a new column and formatted using <code>openpyxl</code>'s hyperlink styling, making the link natively clickable in Microsoft Excel. The file is then saved to the <code>downloads/</code> folder and served to the user.</p>
 
-    <h2>3. Setup Guide: How Others Can Run the Project</h2>
+    <h2>4. Feature Walkthrough: Advanced Network Graph & Multi-Source Scraping</h2>
+    
+    <h3>Interactive Corporate Ecosystem Graph</h3>
+    <p>Instead of just waiting for a static Excel file to download, the web dashboard now visually builds a <strong>real-time Network Graph</strong> of the corporate hierarchy while it processes!</p>
+    <ul>
+        <li>Using <code>vis-network</code>, we render a dynamic, physics-based spider web on your dashboard.</li>
+        <li><strong>The Parent Company</strong> is placed in the center as a large purple block.</li>
+        <li><strong>As each entity is verified in the background</strong>, it instantly pops onto the graph!</li>
+        <li><strong>Green Solid Links</strong> represent verified Matches.</li>
+        <li><strong>Red Dashed Links</strong> represent No Matches (incorrectly attributed subsidiaries).</li>
+        <li>You can drag the nodes around and zoom in/out while you wait!</li>
+    </ul>
+
+    <h3>Advanced Scan Depth (Multi-Source Lookups)</h3>
+    <p>You now have a toggle switch on the main form to choose your <strong>Scan Depth</strong>:</p>
+    <ul>
+        <li><strong>Quick Scan (Google Only):</strong> Functions at high speed, relying on Google's knowledge graph and general web results.</li>
+        <li><strong>Deep Corporate Audit <span class="badge">Advanced</span>:</strong> This mode is slower but highly robust. When selected, the AI specifically fires off parallel, targeted searches across LinkedIn, Crunchbase, and General Search. The AI is then fed a massive combined context of all three sources to make its final verdict, ensuring maximum accuracy for difficult edge cases.</li>
+    </ul>
+
+    <h3>Under the Hood Changes</h3>
+    <ul>
+        <li><strong>WebSocket Enhancements:</strong> The backend <code>main.py</code> was upgraded to instantly stream individual <code>entity_result</code> data packets to the UI the millisecond they are verified, rather than waiting for the entire batch to finish.</li>
+        <li><strong>Concurrency Buffers:</strong> The deep scan handles the extra API load gracefully via async Semaphores to prevent Serper API timeouts.</li>
+    </ul>
+
+    <h2>5. Setup Guide: How Others Can Run the Project</h2>
     
     <h3>Prerequisites</h3>
     <p>You must have Python 3.10+ installed on your machine. You will also need API keys from two services:</p>
