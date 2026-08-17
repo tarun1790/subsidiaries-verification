@@ -79,14 +79,14 @@
             text-transform: uppercase;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </head>
 <body>
 
     <h1>Subsidiaries Verification AI <br><span style="font-size: 18px; font-weight: normal; color: #666;">Complete Technical & Setup Documentation</span></h1>
-    
-    <div class="highlight">
-        <p><strong>Executive Summary:</strong> The Subsidiaries Verification AI is an enterprise-grade full-stack application designed to automate corporate hierarchy verification. It accepts an Excel spreadsheet of legal entities, uses live web scraping (Google, LinkedIn, Crunchbase) to find evidence, feeds the raw data into Google Gemini 2.5 Flash for forensic analysis, and returns a verified, formatted Excel document.</p>
-    </div>
 
     <h2>1. Full Technology Stack</h2>
     <p>This project utilizes a modern, async-first architecture to maximize scraping speed and minimize API bottlenecks.</p>
@@ -108,7 +108,46 @@
         <li><strong>Data Visualization:</strong> <code>vis-network</code> (Physics-based Node Graph) and <code>Chart.js</code> (Donut charts).</li>
     </ul>
 
-    <h2>2. Step-by-Step System Workflow (How It Works)</h2>
+    <h2>2. System Architecture & Workflow</h2>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <div class="mermaid">
+        graph TD
+            A[User Uploads Excel] --> B[FastAPI Backend Parses 'LEM' Sheet]
+            B --> C{SQLite Cache Hit?}
+            C -->|Yes| D[Instantly Return Cached Match]
+            C -->|No| E{Scan Depth Choice}
+            
+            E -->|Quick Scan| F[Serper.dev: Google Search]
+            E -->|Deep Audit| G[Parallel Dorking: LinkedIn + Crunchbase + Google]
+            
+            F --> H[Playwright Scrapes Full Web DOM]
+            G --> H
+            
+            H --> I[Batch 50 Entities]
+            I --> J((Gemini AI Series Architecture))
+            
+            J -->|Primary Engine| K[gemini-3.6-flash]
+            K -.->|Fallback 1| L[gemini-3.5-flash]
+            L -.->|Fallback 2| M[gemini-3.1-flash]
+            M -.->|Final Safety| N[gemini-3.5-flash-lite]
+            
+            K & L & M & N --> O[JSON Output: Match, Confidence, Evidence]
+            
+            O --> P[WebSocket: Stream Results to UI]
+            P --> Q[Vis.js: Build Real-Time Network Graph]
+            O --> R[Write Data to Excel]
+            R --> S[Apply Colors & Clickable Hyperlinks]
+            S --> T[User Downloads Verified Report]
+            
+            classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+            classDef ai fill:#e0e7ff,stroke:#6366f1,stroke-width:2px;
+            classDef ui fill:#fef3c7,stroke:#f59e0b,stroke-width:2px;
+            
+            class J,K,L,M,N ai;
+            class A,Q,T ui;
+        </div>
+    </div>
     
     <h3>Step 1: Excel Ingestion & Parsing</h3>
     <p>When the user uploads an <code>.xlsx</code> file, the backend loads it into memory using <code>openpyxl</code>. Unlike standard CSV parsers, this preserves the user's original colors, borders, and macros. The system automatically searches all sheet names for keywords like "LEM" or "legalentitymapping". Once the sheet is found, it dynamically scans the header row to locate the column containing the Entity Names (looking for headers like "entity", "company", or "account").</p>
