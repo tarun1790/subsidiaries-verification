@@ -125,12 +125,15 @@
     <p class="subtitle">Comprehensive Architectural Specification and Engineering Whitepaper</p>
     
     <div class="abstract">
-        <strong>Abstract</strong>
-        This technical specification details the complete architecture, methodology, and engineering principles behind the Subsidiaries Verification AI. Designed to solve the highly manual, time-consuming enterprise problem of Legal Entity Mapping (LEM) validation, this system fully automates corporate hierarchy verification. The document synthesizes the complete operational history of the application, detailing the pipeline from dynamic non-destructive Excel ingestion, to multi-source Dorking techniques (LinkedIn/Crunchbase), to real-time WebSocket telemetry. It meticulously defines the Generative AI (Gemini) fallback matrix, the physics-based visual frontend, and the overarching heuristic philosophy—"Extreme Benefit of the Doubt"—which governs the system's final determinations.
+        <strong>Executive System Overview</strong>
+        The Subsidiaries Verification AI is an automated pipeline designed to eliminate manual Legal Entity Mapping (LEM) audits. It operates by orchestrating four primary technical pillars:
+        <ul style="margin-top: 10px; margin-bottom: 0; font-style: normal;">
+            <li><strong>Intelligent Data Ingestion:</strong> Non-destructive Excel parsing (openpyxl) that preserves existing macros, formulas, and visual formatting.</li>
+            <li><strong>Anti-Bot Evasion:</strong> Advanced "Google Dorking" combined with headless Chromium browsers to bypass corporate firewalls and extract raw DOM payloads.</li>
+            <li><strong>Forensic AI Analysis:</strong> A multi-tiered Gemini Generative AI matrix (3.6 -> 3.5 -> 3.1 -> 3.5-lite) that deterministically classifies corporate relationships.</li>
+            <li><strong>Real-Time Telemetry:</strong> WebSocket-driven UI that renders a live, physics-based Vis.js ecosystem graph of the corporate hierarchy during batch processing.</li>
+        </ul>
     </div>
-
-    <h2>1. Introduction & Business Problem</h2>
-    <p>In enterprise environments, verifying whether hundreds of legal entities actually belong to a specified parent company is a tedious, labor-intensive task. Traditional audits require human analysts to manually search Google, navigate complex corporate registries, and log evidence in spreadsheets. The <strong>Subsidiaries Verification AI</strong> replaces hundreds of human hours by orchestrating an intelligent, multi-agent AI framework capable of navigating anti-bot firewalls, extracting structured corporate evidence, and synthesizing deterministic results in seconds.</p>
 
     <h2>2. Core Verification Philosophy</h2>
     <p>The AI operates strictly under the <strong>"Extreme Benefit of the Doubt"</strong> protocol. During the forensic analysis of a subsidiary relationship, the system inherently assumes the user-provided Excel data is correct. An entity is <em>only</em> marked as <code>NO MATCH</code> if the extracted web evidence definitively proves the entity is a direct competitor or completely unrelated to the Parent Company. Ambiguity or lack of information defaults to a positive match. This minimizes false negatives and ensures minor regional branches without heavy web presence are not incorrectly flagged.</p>
