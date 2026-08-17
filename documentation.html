@@ -190,7 +190,6 @@
         <li><strong>Parallel "Dorking" API Calls:</strong> Instead of directly pinging target websites, the system calls the Serper.dev API (Google Search API) using <code>asyncio.Semaphore</code> buffers to execute three simultaneous, parallel queries per entity:
             <ul>
                 <li><strong>General Search:</strong> <code>"{Entity}" "{Parent}"</code> (Captures broad press releases and news articles).</li>
-                <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company "{Entity}" "{Parent}"</code> (Forces Google's unfiltered, pre-crawled index to bypass LinkedIn's login walls and return official corporate pages).</li>
                 <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com "{Entity}" "{Parent}"</code> (Extracts definitive startup acquisition histories, Series funding details, and holding company portfolios).</li>
             </ul>
         </li>
