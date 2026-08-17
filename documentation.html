@@ -159,15 +159,18 @@
     <p>For uncached entities, the system searches the live web using an <code>asyncio.Semaphore(4)</code> queue to manage concurrency. The search behavior depends on the UI toggle:</p>
     <ul>
         <li><strong>Quick Scan:</strong> Fires a single query to Serper: <code>"{Entity Name} {Parent Name}"</code>.</li>
-        <li><strong>Deep Corporate Audit <span class="badge">Advanced</span>:</strong> Executes three parallel queries using Google Dorking:
+        <li><strong>Deep Corporate Audit <span class="badge">Advanced</span>:</strong> How does the deep search actually work? 
+            <p>Directly scraping enterprise directories like LinkedIn or Crunchbase is notoriously difficult due to massive anti-bot firewalls that block standard scrapers instantly. To bypass this and get the data anyway, our Deep Search utilizes <strong>Google Dorking (Advanced Search Operators)</strong> combined with asynchronous parallel execution.</p>
+            <p>When "Deep Audit" is toggled, the backend spawns 3 parallel, concurrent async tasks per entity:</p>
             <ol>
-                <li>General Search: <code>"{Entity} {Parent}"</code></li>
-                <li>LinkedIn Dork: <code>site:linkedin.com/company {Entity} {Parent}</code></li>
-                <li>Crunchbase Dork: <code>site:crunchbase.com {Entity} {Parent}</code></li>
+                <li><strong>General Search:</strong> <code>"{Entity} {Parent}"</code> (Captures press releases and news)</li>
+                <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company {Entity} {Parent}</code> (Forces Google's unfiltered index to hand over official LinkedIn corporate pages, bypassing LinkedIn's login walls).</li>
+                <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com {Entity} {Parent}</code> (Extracts definitive startup acquisition histories and parent portfolios).</li>
             </ol>
+            <p>The results of all three concurrent searches are instantly merged. We then limit the payload to the top 5 most relevant URLs to prevent token bloat.</p>
         </li>
     </ul>
-    <p>Playwright then physically visits the top URLs returned by Serper, extracts the <code>&lt;body&gt;</code> HTML, strips it using BeautifulSoup, and compiles a massive "Evidence String" for the AI.</p>
+    <p>Once the definitive URLs are secured via Dorking, <strong>Playwright</strong> physically visits those top URLs in an invisible headless browser, extracts the full <code>&lt;body&gt;</code> HTML, strips out the noise using BeautifulSoup, and compiles a massive, multi-source "Evidence String" for the AI to analyze.</p>
 
     <h3>Step 4: AI Forensic Analysis (Gemini 2.5 Flash)</h3>
     <p>The raw web evidence is bundled into chunks of 50 entities and sent to Gemini. The system prompt instructs Gemini to act as a <strong>Forensic Accountant</strong> applying the rule of <strong>Extreme Benefit of the Doubt</strong> (assume the user's spreadsheet is correct unless explicitly proven wrong by a competitor's website). Gemini outputs a strict JSON array containing:</p>
