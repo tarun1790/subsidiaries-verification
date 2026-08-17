@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let resultsChart = null; // Global chart instance
     
     // Dynamic API Base URL for GitHub Pages
-    const API_BASE = window.location.hostname === 'tarun1790.github.io' ? 'http://127.0.0.1:8000' : '';
+    const API_BASE = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:8000' 
+    : 'http://127.0.0.1:8000'; // Fallback to local server even if hosted on GH Pages
     
     // Removed unused nav logic
     
@@ -61,6 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let wsUrl = API_BASE ? API_BASE.replace('http', 'ws') : `ws://${window.location.host}`;
         const ws = new WebSocket(`${wsUrl}/ws/progress/${clientId}`);
         
+        const parentName = document.getElementById('parent-name').value.trim();
+        
+        // Initialize the Graph
+        nodes = new vis.DataSet([{id: parentName, label: parentName, shape: 'box', color: '#6366f1', font: {color: 'white', size: 16}}]);
+        edges = new vis.DataSet([]);
+        const container = document.getElementById('network-graph');
+        const graphData = { nodes: nodes, edges: edges };
+        const options = {
+            physics: { stabilization: false, barnesHut: { gravitationalConstant: -3000, springLength: 100 } },
+            nodes: { borderWidth: 0 },
+            edges: { width: 2 }
+        };
+        if(network) network.destroy();
+        network = new vis.Network(container, graphData, options);
+        
         ws.onmessage = (event) => {
             try {
                 const msg = JSON.parse(event.data);
@@ -69,6 +86,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (msg.step) {
                     progressText.textContent = msg.step;
+                }
+                if (msg.type === "entity_result") {
+                    try {
+                        nodes.add({
+                            id: msg.entity, 
+                            label: msg.entity, 
+                            color: msg.is_match ? '#30a46c' : '#e5484d',
+                            shape: 'dot',
+                            size: msg.is_match ? 15 : 20,
+                            font: { color: 'white' }
+                        });
+                        edges.add({
+                            from: parentName, 
+                            to: msg.entity, 
+                            color: msg.is_match ? '#30a46c' : '#e5484d',
+                            dashes: !msg.is_match
+                        });
+                    } catch(e) {} // Ignore duplicate nodes
                 }
             } catch(e) {}
         };

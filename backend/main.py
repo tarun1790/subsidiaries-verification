@@ -273,11 +273,23 @@ async def scrape_url(url: str) -> str:
             if page:
                 await page.close()
 
-async def fetch_search_data(entity: str, parent: str, sem) -> tuple[str, str]:
+async def fetch_search_data(entity: str, parent: str, sem, scan_depth: str = "quick") -> tuple[str, str]:
     """Uses Serper.dev and Playwright to fetch full web evidence."""
     async with sem:
-        query = f"{entity} {parent}"
-        results = await asyncio.to_thread(_fetch_serper, query)
+        if scan_depth == "deep":
+            q1 = f"{entity} {parent}"
+            q2 = f"site:linkedin.com/company {entity} {parent}"
+            q3 = f"site:crunchbase.com {entity} {parent}"
+            r1, r2, r3 = await asyncio.gather(
+                asyncio.to_thread(_fetch_serper, q1),
+                asyncio.to_thread(_fetch_serper, q2),
+                asyncio.to_thread(_fetch_serper, q3)
+            )
+            # Combine and limit to top 5 to avoid token bloat
+            results = (r1 + r2 + r3)[:5]
+        else:
+            query = f"{entity} {parent}"
+            results = await asyncio.to_thread(_fetch_serper, query)
         
         evidence_parts = []
         for res in results:
@@ -454,7 +466,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     return [{"name": "Error", "reason": "Failed to analyze batch due to API error across all models."}], 0
 
 @app.post("/api/verify")
-async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = File(...), client_id: str = Form(None)):
+async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = File(...), client_id: str = Form(None), scan_depth: str = Form("quick")):
     try:
         contents = await file.read()
         
@@ -509,6 +521,12 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             cached = get_cached_result(parent_name, entity)
             if cached:
                 all_lems.append(cached)
+                if client_id:
+                    await manager.send_personal_message({
+                        "type": "entity_result", 
+                        "entity": cached.get("name", entity), 
+                        "is_match": cached.get("is_match", False)
+                    }, client_id)
             else:
                 uncached_entities.append(entity)
                 
@@ -521,7 +539,7 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
             logger.info(f"Searching web concurrently via Serper for {len(uncached_entities)} entities...")
             search_results = {}
             sem = asyncio.Semaphore(4) # Serper Free tier allows lower QPS, reduced to 4
-            tasks = [fetch_search_data(entity, parent_name, sem) for entity in uncached_entities]
+            tasks = [fetch_search_data(entity, parent_name, sem, scan_depth) for entity in uncached_entities]
             results = await asyncio.gather(*tasks)
             
             for ent, data in results:
@@ -551,6 +569,12 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                             all_lems.append(item)
                             if ent_name:
                                 set_cached_result(parent_name, ent_name, item)
+                            if client_id:
+                                await manager.send_personal_message({
+                                    "type": "entity_result", 
+                                    "entity": item.get("name", ""), 
+                                    "is_match": item.get("is_match", False)
+                                }, client_id)
                 
                 # Second pass (Deep Research Fallback)
                 if low_confidence_entities:
@@ -584,6 +608,12 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                             ent_name = item.get('name', item.get('entity', item.get('company', '')))
                             if ent_name:
                                 set_cached_result(parent_name, ent_name, item)
+                            if client_id:
+                                await manager.send_personal_message({
+                                    "type": "entity_result", 
+                                    "entity": item.get("name", ""), 
+                                    "is_match": item.get("is_match", False)
+                                }, client_id)
                     
         if client_id: await manager.send_personal_message({"step": "Generating Excel report...", "progress": 90}, client_id)
         # Highlight entities in the Excel file and add new columns
