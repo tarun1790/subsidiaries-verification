@@ -382,6 +382,7 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
         "is_match": true or false,
         "confidence": "high, medium, low, or none",
         "evidence": "Briefly state the specific evidence or internal knowledge cited (e.g. 'Google Knowledge Graph states 100% owned', or 'Internal knowledge confirms it is a division of XYZ').",
+        "source_link": "Provide the exact URL link from the web evidence that proved this match. If no web link exists and you used internal knowledge, return 'N/A'.",
         "reason": "Detailed explanation of why it is or isn't a match. Do not use boilerplate text. If not a match, name the ACTUAL parent or owner."
       }}
     ]
@@ -597,7 +598,8 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
         ws.cell(row=1, column=start_col_idx, value="Match Status")
         ws.cell(row=1, column=start_col_idx + 1, value="Confidence")
         ws.cell(row=1, column=start_col_idx + 2, value="Evidence")
-        ws.cell(row=1, column=start_col_idx + 3, value="Reason")
+        ws.cell(row=1, column=start_col_idx + 3, value="Source Link")
+        ws.cell(row=1, column=start_col_idx + 4, value="Reason")
         
         for row in ws.iter_rows(min_row=2, min_col=entity_col_idx, max_col=entity_col_idx):
             cell = row[0]
@@ -613,7 +615,8 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                     ws.cell(row=cell.row, column=start_col_idx).value = "MATCH" if is_match else "NO MATCH"
                     ws.cell(row=cell.row, column=start_col_idx + 1).value = str(res.get('confidence', 'none')).upper()
                     ws.cell(row=cell.row, column=start_col_idx + 2).value = res.get('evidence', '')
-                    ws.cell(row=cell.row, column=start_col_idx + 3).value = res.get('reason', '')
+                    ws.cell(row=cell.row, column=start_col_idx + 3).value = res.get('source_link', 'N/A')
+                    ws.cell(row=cell.row, column=start_col_idx + 4).value = res.get('reason', '')
                 
         run_id = str(uuid.uuid4())
         output_filename = f"marked_{run_id}.xlsx"
