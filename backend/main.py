@@ -410,9 +410,9 @@ def analyze_relationships_batch(entities: list, parent: str, search_results: dic
     
     models_to_try = [
         "gemini-3.6-flash", 
-        "gemini-3.5-flash-lite", 
-        "gemini-3.0-flash", 
-        "gemini-3.1-flash-lite"
+        "gemini-3.5-flash", 
+        "gemini-3.1-flash", 
+        "gemini-3.5-flash-lite"
     ]
     
     for model_name in models_to_try:
