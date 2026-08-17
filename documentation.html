@@ -160,20 +160,18 @@
     <ul>
         <li><strong>Quick Scan:</strong> Fires a single query to Serper: <code>"{Entity Name} {Parent Name}"</code>.</li>
         <li><strong>Deep Corporate Audit <span class="badge">Advanced</span>:</strong> How does the deep search actually work? 
-            <p>Directly scraping enterprise directories like LinkedIn or Crunchbase is notoriously difficult due to massive anti-bot firewalls that block standard scrapers instantly. To bypass this and get the data anyway, our Deep Search utilizes <strong>Google Dorking (Advanced Search Operators)</strong> combined with asynchronous parallel execution.</p>
-            <p>When "Deep Audit" is toggled, the backend spawns 3 parallel, concurrent async tasks per entity:</p>
-            <ol>
-                <li><strong>General Search:</strong> <code>"{Entity} {Parent}"</code> (Captures press releases and news)</li>
-                <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company {Entity} {Parent}</code> (Forces Google's unfiltered index to hand over official LinkedIn corporate pages, bypassing LinkedIn's login walls).</li>
-                <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com {Entity} {Parent}</code> (Extracts definitive startup acquisition histories and parent portfolios).</li>
-            </ol>
-            <p>The results of all three concurrent searches are instantly merged. We then limit the payload to the top 5 most relevant URLs to prevent token bloat.</p>
+            <p>Directly scraping LinkedIn or Crunchbase is notoriously difficult because they have massive anti-bot firewalls that block standard scrapers instantly.</p>
+            <p>To bypass this and get the data anyway, we use an advanced technique called "Dorking" (Advanced Search Operators) combined with Generative AI Analysis:</p>
+            <ul>
+                <li><strong>Precision Targeting:</strong> When you flip that switch on, the backend executes specialized query operators (e.g., <code>site:linkedin.com/company "Entity" "Parent"</code>). This forces Google's raw, unfiltered index to hand over the exact LinkedIn and Crunchbase profile data, completely bypassing their anti-bot firewalls.</li>
+                <li><strong>AI Forensic Analysis:</strong> Instead of just looking for keywords, we take all the raw text from those profiles and feed it directly into the Gemini AI model. We essentially instruct Gemini to act as a forensic accountant. It reads the Crunchbase acquisition history and LinkedIn descriptions to definitively prove whether a company was bought out, operates as a subsidiary, or is just a random competitor.</li>
+            </ul>
+            <p>By layering these specialized search tactics underneath an AI that understands corporate jargon, the system is performing a highly advanced, multi-source audit in seconds!</p>
         </li>
     </ul>
-    <p>Once the definitive URLs are secured via Dorking, <strong>Playwright</strong> physically visits those top URLs in an invisible headless browser, extracts the full <code>&lt;body&gt;</code> HTML, strips out the noise using BeautifulSoup, and compiles a massive, multi-source "Evidence String" for the AI to analyze.</p>
 
-    <h3>Step 4: AI Forensic Analysis (Gemini 2.5 Flash)</h3>
-    <p>The raw web evidence is bundled into chunks of 50 entities and sent to Gemini. The system prompt instructs Gemini to act as a <strong>Forensic Accountant</strong> applying the rule of <strong>Extreme Benefit of the Doubt</strong> (assume the user's spreadsheet is correct unless explicitly proven wrong by a competitor's website). Gemini outputs a strict JSON array containing:</p>
+    <h3>Step 4: AI Decision & Output</h3>
+    <p>Using the forensic analysis mentioned above, Gemini returns a strict JSON array containing:</p>
     <ul>
         <li><code>is_match</code>: Boolean (True/False)</li>
         <li><code>confidence</code>: String (High, Medium, Low)</li>
