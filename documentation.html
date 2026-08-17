@@ -2,264 +2,246 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Subsidiaries Verification AI - Advanced System Architecture & Whitepaper</title>
+    <title>Subsidiaries Verification AI - Technical Specification</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js"></script>
     <script>
-        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'neutral',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#000000',
+                primaryBorderColor: '#000000',
+                lineColor: '#000000',
+                secondaryColor: '#f4f4f4',
+                tertiaryColor: '#e0e0e0'
+            }
+        });
     </script>
     <style>
-        :root {
-            --primary: #2563eb;
-            --secondary: #475569;
-            --bg-light: #f8fafc;
-            --border: #e2e8f0;
-            --text-main: #1e293b;
-            --accent: #8b5cf6;
-        }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: var(--text-main);
-            line-height: 1.7;
+            font-family: 'Times New Roman', Times, serif;
+            color: #000000;
+            line-height: 1.6;
             margin: 0 auto;
-            max-width: 1000px;
-            padding: 40px;
+            max-width: 850px;
+            padding: 50px;
             background-color: #ffffff;
         }
         h1 {
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: #0f172a;
-            border-bottom: 4px solid var(--primary);
-            padding-bottom: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 20px;
             margin-bottom: 10px;
         }
         .subtitle {
-            font-size: 20px;
-            color: var(--secondary);
-            font-weight: 500;
-            margin-top: 0;
-            margin-bottom: 40px;
+            font-size: 16px;
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 50px;
         }
         h2 {
-            font-size: 26px;
-            color: var(--primary);
-            margin-top: 50px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
+            font-size: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 5px;
+            margin-top: 40px;
         }
         h3 {
-            font-size: 20px;
-            color: #334155;
-            margin-top: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 25px;
+            text-decoration: underline;
         }
         p, li {
-            font-size: 15px;
-            color: #475569;
+            font-size: 14px;
+            text-align: justify;
         }
-        ul {
+        ul, ol {
             margin-bottom: 20px;
             padding-left: 25px;
         }
-        li {
-            margin-bottom: 8px;
-        }
         code {
-            background-color: var(--bg-light);
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
-            font-size: 13.5px;
-            color: #db2777;
-            border: 1px solid var(--border);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border: 1px solid #cccccc;
         }
         pre {
-            background-color: var(--bg-light);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
-            padding: 20px;
-            border-radius: 6px;
+            background-color: #f9f9f9;
+            border: 1px solid #000000;
+            padding: 15px;
             overflow-x: auto;
         }
         pre code {
             background-color: transparent;
             border: none;
-            color: var(--text-main);
             padding: 0;
         }
         .abstract {
-            background: linear-gradient(145deg, #f0fdf4, #f8fafc);
-            border-left: 5px solid #10b981;
-            padding: 25px;
-            margin: 30px 0;
-            border-radius: 0 8px 8px 0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin: 30px 40px;
+            font-size: 13px;
+            font-style: italic;
+            text-align: justify;
         }
         .abstract strong {
-            color: #047857;
-            font-size: 18px;
             display: block;
+            text-align: center;
+            font-style: normal;
+            font-size: 14px;
             margin-bottom: 10px;
+            text-transform: uppercase;
         }
         .diagram-container {
-            text-align: center;
             margin: 40px 0;
             padding: 20px;
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #000000;
+            text-align: center;
         }
-        .badge {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            vertical-align: middle;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
         }
-        .toc {
-            background-color: var(--bg-light);
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
+        th, td {
+            border: 1px solid #000000;
+            padding: 10px;
+            text-align: left;
         }
-        .toc h3 {
-            margin-top: 0;
-            color: var(--text-main);
-        }
-        .toc ol {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .toc li {
-            margin-bottom: 10px;
-            color: var(--primary);
-            font-weight: 500;
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
     <h1>Subsidiaries Verification AI</h1>
-    <p class="subtitle">Advanced System Architecture & Engineering Whitepaper</p>
+    <p class="subtitle">System Architecture, Scraping Methodologies, and Integration Protocols</p>
     
     <div class="abstract">
         <strong>Abstract</strong>
-        <p>This document outlines the architectural specifications and engineering principles behind the Subsidiaries Verification AI. Designed as an enterprise-grade Legal Entity Mapping (LEM) auditor, the system combines multi-agent generative AI, concurrent web scraping algorithms, and Google Dorking techniques to bypass modern anti-bot firewalls. This whitepaper details the data ingestion pipeline, the multi-tiered AI fallback hierarchy, real-time WebSocket telemetry, and the logic underpinning the forensic verification engine.</p>
+        This technical specification details the architecture of the Subsidiaries Verification AI, a robust system designed for Legal Entity Mapping (LEM) validation. The document synthesizes the complete operational history of the application, detailing the pipeline from raw Excel ingestion to multi-source Dorking (LinkedIn/Crunchbase), real-time WebSocket telemetry, the Gemini AI fallback matrix, and final structured Excel generation. The overarching heuristic philosophy of the system—"Extreme Benefit of the Doubt"—is also defined.
     </div>
 
-    <div class="toc">
-        <h3>Table of Contents</h3>
-        <ol>
-            <li>System Architecture & Telemetry Flow</li>
-            <li>Data Ingestion & Non-Destructive Parsing</li>
-            <li>Anti-Bot Evasion & Parallel Dorking Strategy</li>
-            <li>AI Forensic Engine & Fallback Hierarchy</li>
-            <li>Real-Time Telemetry & Visualization</li>
-            <li>Deployment & Setup Specifications</li>
-        </ol>
-    </div>
+    <h2>1. Core Verification Philosophy</h2>
+    <p>The AI operates strictly under the <strong>"Extreme Benefit of the Doubt"</strong> protocol. During the forensic analysis of a subsidiary relationship, the system assumes the user-provided Excel data is correct. An entity is only marked as <code>NO MATCH</code> if the extracted web evidence definitively proves the entity is a direct competitor or completely unrelated to the Parent Company. Ambiguity defaults to a positive match.</p>
 
-    <h2>1. System Architecture & Telemetry Flow</h2>
-    <p>The system utilizes a modern, async-first architecture running on <code>FastAPI</code> and <code>Uvicorn</code> to maximize I/O throughput during scraping and AI inference. The following sequence diagram illustrates the exact asynchronous event flow from the moment an Excel payload is transmitted to the server.</p>
+    <h2>2. System Architecture & Telemetry Flow</h2>
+    <p>The application relies on an asynchronous FastAPI backend to manage web scraping, database caching, and AI inference concurrently. A critical feature of this architecture is the real-time WebSocket telemetry that updates the client UI dynamically.</p>
     
     <div class="diagram-container">
         <div class="mermaid">
         sequenceDiagram
             actor User
-            participant UI as Client (HTML/JS)
-            participant API as FastAPI Backend
-            participant Cache as SQLite Cache
-            participant Web as Playwright / Serper
-            participant LLM as Gemini AI Cluster
+            participant UI as Client (HTML/Vis.js)
+            participant API as FastAPI Server
+            participant Cache as SQLite
+            participant Web as Playwright/Serper
+            participant LLM as Gemini Cluster
             
             User->>UI: Uploads Excel & Selects "Deep Audit"
-            UI->>API: POST /api/verify (FormData)
-            API->>UI: Open WebSocket /ws/progress
+            UI->>API: POST /api/verify
+            API->>UI: Establish WebSocket /ws/progress
             
-            API->>API: Parse Excel via openpyxl
-            API->>Cache: SELECT * FROM scan_cache
+            API->>API: Extract Entities via openpyxl
+            API->>Cache: Query scan_cache
             
             alt Cache Hit
-                Cache-->>API: Return Cached Result
-                API->>UI: WebSocket: emit {type: entity_result}
+                Cache-->>API: Return Result
+                API->>UI: WebSocket: emit entity_result
             else Cache Miss
-                API->>Web: Spawn 3x Async Tasks (Dorking)
-                Web-->>API: Return Raw DOM Content (LinkedIn/Crunchbase)
+                API->>Web: Spawn Async Dorking Tasks
+                Web-->>API: Return DOM text
                 
-                API->>LLM: POST Batch (50 Entities + Context)
+                API->>LLM: POST Batch Payload
                 LLM-->>API: JSON Forensic Response
-                API->>Cache: INSERT INTO scan_cache
-                API->>UI: WebSocket: emit {type: entity_result}
+                API->>Cache: Store Result
+                API->>UI: WebSocket: emit entity_result
             end
             
-            API->>API: Write Results & Inject Hyperlinks
-            API-->>UI: HTTP 200: Return Excel Blob URL
-            UI->>User: Initiates File Download
+            API->>API: Inject Hyperlinks & Colors into Excel
+            API-->>UI: Return Excel Binary
         </div>
     </div>
 
-    <h2>2. Data Ingestion & Non-Destructive Parsing</h2>
-    <p>Standard CSV parsers destroy corporate macros, formulas, and visual formatting. To resolve this, the backend leverages <code>openpyxl</code> to load the entire Excel workbook directly into RAM. The parser engine algorithmically searches for the target worksheet by applying regex heuristics to sheet names (targeting permutations of <code>LEM</code> and <code>legalentitymapping</code>).</p>
-    <p>Once isolated, the ingestion engine scans the header row to dynamically locate the primary index column (Entity Name). This allows the tool to be completely agnostic to the specific template structure provided by the end-user.</p>
+    <h2>3. Data Ingestion & Final Output Formatting</h2>
+    <p>Data integrity is paramount. Rather than converting the user's file to a destructive format (like CSV), the system utilizes <code>openpyxl</code>.</p>
+    <ul>
+        <li><strong>Ingestion:</strong> The backend scans all worksheet names for variations of "LEM" or "legalentitymapping". It then dynamically searches the header row to isolate the target entity column.</li>
+        <li><strong>Output Generation:</strong> Once processing concludes, the system modifies the original Excel file directly. Incorrect entities (NO MATCH) are distinctly highlighted in a <strong>Light Orange</strong> background (Hex: <code>#FFFFD580</code>). Furthermore, the <code>source_link</code> generated by the AI is natively injected using Excel hyperlinking protocols, rendering it clickable within the application without requiring copy-pasting.</li>
+    </ul>
 
-    <h2>3. Anti-Bot Evasion & Parallel Dorking Strategy</h2>
-    <p>Directly extracting corporate data from enterprise registries (such as LinkedIn and Crunchbase) is notoriously difficult due to advanced anti-scraping firewalls (e.g., Cloudflare, DataDome). The <strong>Deep Corporate Audit</strong> mode circumvents these firewalls entirely via a technique known as <strong>Google Dorking</strong>.</p>
+    <h2>4. Web Scraping & Anti-Bot Evasion</h2>
+    <p>A standard Google search is insufficient for rigorous corporate audits. When the user enables the "Deep Corporate Audit" toggle, the system executes specialized evasion techniques to bypass anti-bot firewalls on secure directories.</p>
     
-    <h3>The Parallel Extraction Algorithm</h3>
-    <p>When the system encounters an uncached entity, the backend spawns three concurrent async tasks utilizing an <code>asyncio.Semaphore(4)</code> buffer to regulate rate limits. The three parallel queries are:</p>
+    <h3>Parallel Dorking Execution</h3>
+    <p>Directly scraping LinkedIn or Crunchbase is notoriously difficult because they implement massive anti-bot firewalls that block standard scrapers instantly. To bypass this, the backend utilizes "Google Dorking" combined with <code>asyncio.Semaphore</code> buffers to execute three simultaneous queries per entity:</p>
     <ol>
-        <li><strong>General Reconnaissance:</strong> <code>"{Entity Name} {Parent Name}"</code> — Extracts PR releases and financial news.</li>
-        <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company "{Entity Name}" "{Parent Name}"</code> — Forces Google's raw, unfiltered index to hand over the official LinkedIn corporate page data, bypassing LinkedIn's aggressive login walls.</li>
-        <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com "{Entity Name}" "{Parent Name}"</code> — Extracts definitive startup acquisition histories, Series funding details, and parent portfolios.</li>
+        <li><strong>General Search:</strong> <code>"{Entity}" "{Parent}"</code> (Captures broad press releases).</li>
+        <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company "{Entity}" "{Parent}"</code> (Forces Google's unfiltered index to bypass LinkedIn's login walls).</li>
+        <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com "{Entity}" "{Parent}"</code> (Extracts definitive startup acquisition histories).</li>
     </ol>
-    <p>The system aggregates the top 5 distinct URLs from these parallel results. <strong>Playwright</strong> (an async headless browser) is then deployed to physically visit the URLs, rendering the DOM and utilizing <code>BeautifulSoup4</code> to strip out navigation headers, footers, and scripts, leaving only the pure semantic text payload.</p>
+    <p>The top distinct URLs are aggregated, and <strong>Playwright</strong> executes an invisible headless browser to extract the pure DOM text, stripping navigation elements via <code>BeautifulSoup4</code>.</p>
 
-    <h2>4. AI Forensic Engine & Fallback Hierarchy</h2>
-    <p>The extracted text payloads are batched and routed to the Generative AI Cluster. The system prompt configures the AI to act as a highly specialized Forensic Accountant governed by a core directive: <strong>"Extreme Benefit of the Doubt."</strong> The AI will assume the user's Excel sheet is correct unless it discovers definitive, conflicting corporate evidence.</p>
+    <h2>5. AI Forensic Engine & Fallback Matrix</h2>
+    <p>The stripped text payloads are fed directly into the Google Gemini AI cluster. The prompt instructs the AI to act as a forensic accountant, reading the Crunchbase and LinkedIn descriptions to definitively prove whether a company was bought out, operates as a subsidiary, or is a competitor.</p>
     
-    <h3>The Fallback Fault-Tolerance Sequence</h3>
-    <p>To guarantee enterprise-level high availability (99.9% uptime) and bypass rigid API rate-limiting restrictions, the backend implements a cascading fallback loop using the <code>google-genai</code> SDK. If a model times out or rejects the payload, the system instantly catches the exception and routes the request to the next tier:</p>
+    <h3>The Model Fallback Sequence</h3>
+    <p>To ensure absolute fault tolerance against API rate limits and internal server errors, the system implements a strict, cascading fallback hierarchy:</p>
+    <table>
+        <tr>
+            <th>Priority Tier</th>
+            <th>Model Designation</th>
+            <th>Operational Purpose</th>
+        </tr>
+        <tr>
+            <td>1 (Primary)</td>
+            <td><code>gemini-3.6-flash</code></td>
+            <td>Maximum reasoning capability; default engine.</td>
+        </tr>
+        <tr>
+            <td>2 (Secondary)</td>
+            <td><code>gemini-3.5-flash</code></td>
+            <td>High-redundancy reasoning fallback.</td>
+        </tr>
+        <tr>
+            <td>3 (Tertiary)</td>
+            <td><code>gemini-3.1-flash</code></td>
+            <td>Stable legacy fallback.</td>
+        </tr>
+        <tr>
+            <td>4 (Safety)</td>
+            <td><code>gemini-3.5-flash-lite</code></td>
+            <td>Lightweight, high-throughput model for absolute safety.</td>
+        </tr>
+    </table>
+
+    <h2>6. Interactive Real-Time Ecosystem Graph</h2>
+    <p>To prevent user fatigue during processing, the frontend implements a <strong>Vis.js Network Graph</strong>. The UI consumes the continuous stream of <code>entity_result</code> WebSocket packets broadcast by the backend. The Parent Company serves as the central focal node. As the AI verifies entities in the background, they instantaneously manifest on the physics-based graph:</p>
     <ul>
-        <li><strong>Tier 1 (Primary):</strong> <code>gemini-3.6-flash</code> — Maximum reasoning capability and speed.</li>
-        <li><strong>Tier 2 (Secondary):</strong> <code>gemini-3.5-flash</code> — High reasoning redundancy.</li>
-        <li><strong>Tier 3 (Tertiary):</strong> <code>gemini-3.1-flash</code> — Stable legacy fallback.</li>
-        <li><strong>Tier 4 (Safety):</strong> <code>gemini-3.5-flash-lite</code> — Lightweight, high-throughput model guaranteed to execute if heavy models are throttled.</li>
+        <li><strong>Verified Matches:</strong> Display as solid Green lines.</li>
+        <li><strong>Failed Matches:</strong> Display as dashed Red lines.</li>
     </ul>
+    <p>This graph is entirely interactive, allowing drag-and-drop mechanics and zoom functionality.</p>
 
-    <h2>5. Real-Time Telemetry & Visualization</h2>
-    <p>Historically, heavy AI processing jobs are black boxes that force the user to wait blindly. This architecture solves that via dual-layer telemetry:</p>
-    <ul>
-        <li><strong>WebSocket Data Streaming:</strong> As the AI cluster parses chunks and resolves entities, the FastAPI backend streams <code>entity_result</code> packets through an active WebSocket connection (<code>ws://</code> protocol).</li>
-        <li><strong>Physics-Based UI Rendering:</strong> The frontend JavaScript engine intercepts these packets and pipes them into a <code>vis-network</code> canvas. The browser dynamically computes a physics-based, repulsive-node Network Graph in real-time. Verified matches spawn as green nodes linked directly to the central Parent Company, while rejected entities spawn as dashed red nodes.</li>
-    </ul>
+    <h2>7. Environment Setup Requirements</h2>
+    <p>The following parameters are required to instantiate the application environment.</p>
+    <pre><code># Required System Environment Variables
+GEMINI_API_KEY=your_gemini_api_key
+SERPER_API_KEY=your_serper_api_key
 
-    <h2>6. Deployment & Setup Specifications</h2>
-    <p>The system is designed to be highly portable. It requires Python 3.10+ and a standard <code>.env</code> file for secrets management.</p>
-    
-    <h3>Environment Variables Required</h3>
-    <pre><code>GEMINI_API_KEY=your_gemini_api_key_here
-SERPER_API_KEY=your_serper_api_key_here</code></pre>
-
-    <h3>Environment Instantiation</h3>
-    <pre><code># 1. Initialize Virtual Environment
+# Execution Command Sequence
 python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-
-# 2. Install Core Dependencies
 pip install fastapi uvicorn google-genai playwright beautifulsoup4 openpyxl pandas python-multipart
-
-# 3. Provision Headless Browser Binaries
 playwright install chromium
-
-# 4. Boot the Uvicorn Server
-python main.py</code></pre>
-    <p>Upon execution, the server binds to <code>0.0.0.0:8000</code> and serves the client interface directly.</p>
+python main.py
+</code></pre>
 
 </body>
 </html>
