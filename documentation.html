@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Subsidiaries Verification AI - Technical Specification</title>
+    <title>Subsidiaries Verification AI - Complete Technical Specification</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js"></script>
     <script>
         mermaid.initialize({ 
@@ -122,18 +122,21 @@
 <body>
 
     <h1>Subsidiaries Verification AI</h1>
-    <p class="subtitle">System Architecture, Scraping Methodologies, and Integration Protocols</p>
+    <p class="subtitle">Comprehensive Architectural Specification and Engineering Whitepaper</p>
     
     <div class="abstract">
         <strong>Abstract</strong>
-        This technical specification details the architecture of the Subsidiaries Verification AI, a robust system designed for Legal Entity Mapping (LEM) validation. The document synthesizes the complete operational history of the application, detailing the pipeline from raw Excel ingestion to multi-source Dorking (LinkedIn/Crunchbase), real-time WebSocket telemetry, the Gemini AI fallback matrix, and final structured Excel generation. The overarching heuristic philosophy of the system—"Extreme Benefit of the Doubt"—is also defined.
+        This technical specification details the complete architecture, methodology, and engineering principles behind the Subsidiaries Verification AI. Designed to solve the highly manual, time-consuming enterprise problem of Legal Entity Mapping (LEM) validation, this system fully automates corporate hierarchy verification. The document synthesizes the complete operational history of the application, detailing the pipeline from dynamic non-destructive Excel ingestion, to multi-source Dorking techniques (LinkedIn/Crunchbase), to real-time WebSocket telemetry. It meticulously defines the Generative AI (Gemini) fallback matrix, the physics-based visual frontend, and the overarching heuristic philosophy—"Extreme Benefit of the Doubt"—which governs the system's final determinations.
     </div>
 
-    <h2>1. Core Verification Philosophy</h2>
-    <p>The AI operates strictly under the <strong>"Extreme Benefit of the Doubt"</strong> protocol. During the forensic analysis of a subsidiary relationship, the system assumes the user-provided Excel data is correct. An entity is only marked as <code>NO MATCH</code> if the extracted web evidence definitively proves the entity is a direct competitor or completely unrelated to the Parent Company. Ambiguity defaults to a positive match.</p>
+    <h2>1. Introduction & Business Problem</h2>
+    <p>In enterprise environments, verifying whether hundreds of legal entities actually belong to a specified parent company is a tedious, labor-intensive task. Traditional audits require human analysts to manually search Google, navigate complex corporate registries, and log evidence in spreadsheets. The <strong>Subsidiaries Verification AI</strong> replaces hundreds of human hours by orchestrating an intelligent, multi-agent AI framework capable of navigating anti-bot firewalls, extracting structured corporate evidence, and synthesizing deterministic results in seconds.</p>
 
-    <h2>2. System Architecture & Telemetry Flow</h2>
-    <p>The application relies on an asynchronous FastAPI backend to manage web scraping, database caching, and AI inference concurrently. A critical feature of this architecture is the real-time WebSocket telemetry that updates the client UI dynamically.</p>
+    <h2>2. Core Verification Philosophy</h2>
+    <p>The AI operates strictly under the <strong>"Extreme Benefit of the Doubt"</strong> protocol. During the forensic analysis of a subsidiary relationship, the system inherently assumes the user-provided Excel data is correct. An entity is <em>only</em> marked as <code>NO MATCH</code> if the extracted web evidence definitively proves the entity is a direct competitor or completely unrelated to the Parent Company. Ambiguity or lack of information defaults to a positive match. This minimizes false negatives and ensures minor regional branches without heavy web presence are not incorrectly flagged.</p>
+
+    <h2>3. System Architecture & Telemetry Flow</h2>
+    <p>The application relies on an asynchronous <code>FastAPI</code> Python backend to manage web scraping, database caching, and AI inference concurrently. A critical feature of this architecture is the real-time WebSocket telemetry that updates the client UI dynamically, completely eliminating the "black box" waiting period common in heavy AI applications.</p>
     
     <div class="diagram-container">
         <div class="mermaid">
@@ -149,51 +152,58 @@
             UI->>API: POST /api/verify
             API->>UI: Establish WebSocket /ws/progress
             
-            API->>API: Extract Entities via openpyxl
-            API->>Cache: Query scan_cache
+            API->>API: Dynamically Extract Entities via openpyxl
+            API->>Cache: Query SQLite scan_cache
             
             alt Cache Hit
-                Cache-->>API: Return Result
+                Cache-->>API: Return Historic Result
                 API->>UI: WebSocket: emit entity_result
             else Cache Miss
                 API->>Web: Spawn Async Dorking Tasks
-                Web-->>API: Return DOM text
+                Web-->>API: Return DOM text (Playwright/BS4)
                 
-                API->>LLM: POST Batch Payload
-                LLM-->>API: JSON Forensic Response
-                API->>Cache: Store Result
+                API->>LLM: POST Batch Payload (Prompt + Evidence)
+                LLM-->>API: Strict JSON Forensic Response
+                API->>Cache: Store Result for Future Queries
                 API->>UI: WebSocket: emit entity_result
             end
             
-            API->>API: Inject Hyperlinks & Colors into Excel
-            API-->>UI: Return Excel Binary
+            API->>API: Inject Native Hyperlinks & Colors into Excel
+            API-->>UI: Return Modified Excel Binary
         </div>
     </div>
 
-    <h2>3. Data Ingestion & Final Output Formatting</h2>
-    <p>Data integrity is paramount. Rather than converting the user's file to a destructive format (like CSV), the system utilizes <code>openpyxl</code>.</p>
+    <h2>4. Data Ingestion & Non-Destructive Formatting</h2>
+    <p>Enterprise users rely heavily on custom spreadsheet macros, formulas, and color coding. Rather than converting the user's file to a destructive flat-file format (like CSV), the system utilizes <code>openpyxl</code>.</p>
     <ul>
-        <li><strong>Ingestion:</strong> The backend scans all worksheet names for variations of "LEM" or "legalentitymapping". It then dynamically searches the header row to isolate the target entity column.</li>
-        <li><strong>Output Generation:</strong> Once processing concludes, the system modifies the original Excel file directly. Incorrect entities (NO MATCH) are distinctly highlighted in a <strong>Light Orange</strong> background (Hex: <code>#FFFFD580</code>). Furthermore, the <code>source_link</code> generated by the AI is natively injected using Excel hyperlinking protocols, rendering it clickable within the application without requiring copy-pasting.</li>
+        <li><strong>Dynamic Ingestion:</strong> The backend scans all worksheet names for variations of "LEM" or "legalentitymapping". It then dynamically searches the header row to isolate the target entity column, allowing the tool to adapt to any template structure without hard-coding column indexes.</li>
+        <li><strong>Non-Destructive Output:</strong> Once processing concludes, the system modifies the original Excel file directly in memory. Incorrect entities (NO MATCH) are distinctly highlighted in a <strong>Light Orange</strong> background (Hex: <code>#FFFFD580</code>).</li>
+        <li><strong>Native Hyperlinking:</strong> The <code>source_link</code> generated by the AI is natively injected using Excel hyperlinking protocols, rendering it clickable within the application without requiring users to copy-paste URLs into their browser.</li>
     </ul>
 
-    <h2>4. Web Scraping & Anti-Bot Evasion</h2>
-    <p>A standard Google search is insufficient for rigorous corporate audits. When the user enables the "Deep Corporate Audit" toggle, the system executes specialized evasion techniques to bypass anti-bot firewalls on secure directories.</p>
+    <h2>5. The Exact Scanning Procedure & Anti-Bot Tactics</h2>
+    <p>A standard Google search is often insufficient for rigorous corporate audits. When the user enables the "Deep Corporate Audit" toggle, the application executes a highly specific procedural sequence to gather knowledge from the web.</p>
     
-    <h3>Parallel Dorking Execution</h3>
-    <p>Directly scraping LinkedIn or Crunchbase is notoriously difficult because they implement massive anti-bot firewalls that block standard scrapers instantly. To bypass this, the backend utilizes "Google Dorking" combined with <code>asyncio.Semaphore</code> buffers to execute three simultaneous queries per entity:</p>
+    <h3>Step-by-Step Procedural Extraction</h3>
     <ol>
-        <li><strong>General Search:</strong> <code>"{Entity}" "{Parent}"</code> (Captures broad press releases).</li>
-        <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company "{Entity}" "{Parent}"</code> (Forces Google's unfiltered index to bypass LinkedIn's login walls).</li>
-        <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com "{Entity}" "{Parent}"</code> (Extracts definitive startup acquisition histories).</li>
+        <li><strong>Query Construction:</strong> The system extracts the <code>Parent Name</code> string from the UI and the <code>Entity Name</code> string from the current Excel row.</li>
+        <li><strong>Parallel "Dorking" API Calls:</strong> Instead of directly pinging target websites, the system calls the Serper.dev API (Google Search API) using <code>asyncio.Semaphore</code> buffers to execute three simultaneous, parallel queries per entity:
+            <ul>
+                <li><strong>General Search:</strong> <code>"{Entity}" "{Parent}"</code> (Captures broad press releases and news articles).</li>
+                <li><strong>LinkedIn Dork:</strong> <code>site:linkedin.com/company "{Entity}" "{Parent}"</code> (Forces Google's unfiltered, pre-crawled index to bypass LinkedIn's login walls and return official corporate pages).</li>
+                <li><strong>Crunchbase Dork:</strong> <code>site:crunchbase.com "{Entity}" "{Parent}"</code> (Extracts definitive startup acquisition histories, Series funding details, and holding company portfolios).</li>
+            </ul>
+        </li>
+        <li><strong>JSON Parsing & URL Extraction:</strong> The Serper API returns a JSON payload. The procedure iterates through the <code>results</code> array and extracts the <code>link</code> and <code>snippet</code> parameters for the top 5 distinct URLs across all three queries.</li>
+        <li><strong>Headless Browser Rendering:</strong> For each extracted <code>link</code>, the procedure launches an invisible Chromium browser instance via <strong>Playwright</strong> using <code>page.goto(url)</code>. This allows the application to fully render complex, Javascript-heavy web pages that block traditional HTTP requests.</li>
+        <li><strong>DOM Purification:</strong> Once the page is loaded, the raw HTML <code>&lt;body&gt;</code> is captured. The procedure passes this HTML into <code>BeautifulSoup4</code>, which aggressively strips out all <code>&lt;script&gt;</code>, <code>&lt;style&gt;</code>, <code>&lt;nav&gt;</code>, and <code>&lt;footer&gt;</code> tags. The remaining pure semantic text is bundled into an "Evidence String" and passed to the AI Engine.</li>
     </ol>
-    <p>The top distinct URLs are aggregated, and <strong>Playwright</strong> executes an invisible headless browser to extract the pure DOM text, stripping navigation elements via <code>BeautifulSoup4</code>.</p>
 
-    <h2>5. AI Forensic Engine & Fallback Matrix</h2>
-    <p>The stripped text payloads are fed directly into the Google Gemini AI cluster. The prompt instructs the AI to act as a forensic accountant, reading the Crunchbase and LinkedIn descriptions to definitively prove whether a company was bought out, operates as a subsidiary, or is a competitor.</p>
+    <h2>6. AI Forensic Engine & Fallback Matrix</h2>
+    <p>The purified text payloads are batched (up to 50 entities per batch) and fed directly into the Google Gemini AI cluster. The system prompt instructs the AI to act as a forensic accountant, reading the Crunchbase and LinkedIn descriptions to definitively prove whether a company was bought out, operates as a subsidiary, or is merely a competitor. The AI is strictly constrained to output pure JSON arrays containing boolean match decisions, confidence intervals, and explanatory evidence snippets.</p>
     
     <h3>The Model Fallback Sequence</h3>
-    <p>To ensure absolute fault tolerance against API rate limits and internal server errors, the system implements a strict, cascading fallback hierarchy:</p>
+    <p>To ensure absolute fault tolerance against API rate limits (HTTP 429) and internal server errors (HTTP 500), the system implements a strict, cascading fallback hierarchy within the <code>google-genai</code> API integration:</p>
     <table>
         <tr>
             <th>Priority Tier</th>
@@ -201,38 +211,41 @@
             <th>Operational Purpose</th>
         </tr>
         <tr>
-            <td>1 (Primary)</td>
+            <td>1 (Primary Engine)</td>
             <td><code>gemini-3.6-flash</code></td>
-            <td>Maximum reasoning capability; default engine.</td>
+            <td>Maximum reasoning capability; default execution engine.</td>
         </tr>
         <tr>
-            <td>2 (Secondary)</td>
+            <td>2 (Secondary Fallback)</td>
             <td><code>gemini-3.5-flash</code></td>
-            <td>High-redundancy reasoning fallback.</td>
+            <td>High-redundancy reasoning fallback if Tier 1 is throttled.</td>
         </tr>
         <tr>
-            <td>3 (Tertiary)</td>
+            <td>3 (Tertiary Fallback)</td>
             <td><code>gemini-3.1-flash</code></td>
-            <td>Stable legacy fallback.</td>
+            <td>Stable legacy fallback for high-traffic scenarios.</td>
         </tr>
         <tr>
-            <td>4 (Safety)</td>
+            <td>4 (Final Safety)</td>
             <td><code>gemini-3.5-flash-lite</code></td>
-            <td>Lightweight, high-throughput model for absolute safety.</td>
+            <td>Lightweight, high-throughput model guaranteed to execute if heavy models are entirely locked out.</td>
         </tr>
     </table>
 
-    <h2>6. Interactive Real-Time Ecosystem Graph</h2>
-    <p>To prevent user fatigue during processing, the frontend implements a <strong>Vis.js Network Graph</strong>. The UI consumes the continuous stream of <code>entity_result</code> WebSocket packets broadcast by the backend. The Parent Company serves as the central focal node. As the AI verifies entities in the background, they instantaneously manifest on the physics-based graph:</p>
+    <h2>7. Interactive Real-Time Ecosystem Graph</h2>
+    <p>To prevent user fatigue during massive batch processing, the frontend implements a <strong>Vis.js Network Graph</strong> to visualize the AI's "thought process" in real-time. The UI consumes the continuous stream of <code>entity_result</code> WebSocket packets broadcast by the backend.</p>
     <ul>
-        <li><strong>Verified Matches:</strong> Display as solid Green lines.</li>
-        <li><strong>Failed Matches:</strong> Display as dashed Red lines.</li>
+        <li><strong>The Parent Hub:</strong> The Parent Company serves as the central focal node (rendered as a distinct, colored block).</li>
+        <li><strong>Verified Matches:</strong> As the AI verifies entities, they instantaneously manifest on the physics-based graph, connected to the hub via solid Green lines.</li>
+        <li><strong>Failed Matches:</strong> Rejected entities spawn as floating nodes connected via dashed Red lines.</li>
     </ul>
-    <p>This graph is entirely interactive, allowing drag-and-drop mechanics and zoom functionality.</p>
+    <p>This graph utilizes the <code>barnesHut</code> physics solver to simulate gravitational repulsion, ensuring nodes naturally distribute themselves across the canvas. It is entirely interactive, allowing drag-and-drop mechanics and infinite zoom functionality.</p>
 
-    <h2>7. Environment Setup Requirements</h2>
-    <p>The following parameters are required to instantiate the application environment.</p>
-    <pre><code># Required System Environment Variables
+    <h2>8. Environment Setup & Execution Parameters</h2>
+    <p>The system is highly portable and containerization-ready. The following parameters are required to instantiate the application environment.</p>
+    
+    <h3>Configuration Details</h3>
+    <pre><code># Required System Environment Variables (.env)
 GEMINI_API_KEY=your_gemini_api_key
 SERPER_API_KEY=your_serper_api_key
 
@@ -242,6 +255,9 @@ pip install fastapi uvicorn google-genai playwright beautifulsoup4 openpyxl pand
 playwright install chromium
 python main.py
 </code></pre>
+
+    <h3>Troubleshooting Note</h3>
+    <p>If the backend server fails to bind during execution, it indicates that port <code>8000</code> is already occupied by a hanging Python process. Administrators should utilize <code>netstat -ano | findstr :8000</code> to isolate the rogue Process ID, followed by <code>taskkill /PID &lt;id&gt; /F</code> to force terminate the process before rebooting Uvicorn.</p>
 
 </body>
 </html>
