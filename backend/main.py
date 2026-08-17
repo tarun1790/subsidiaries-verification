@@ -277,11 +277,12 @@ async def fetch_search_data(entity: str, parent: str, sem) -> tuple[str, str]:
         
         evidence_parts = []
         for res in results:
-            evidence = f"Snippet: {res['snippet']}"
-            if res['link']:
-                scraped_text = await scrape_url(res['link'])
+            link = res.get('link', '')
+            evidence = f"Source URL: {link}\nSnippet: {res.get('snippet', '')}"
+            if link:
+                scraped_text = await scrape_url(link)
                 if scraped_text:
-                    evidence += f"\nFull Page Text ({res['link']}): {scraped_text}"
+                    evidence += f"\nFull Page Text: {scraped_text}"
             evidence_parts.append(evidence)
             
         final_evidence = "\n\n".join(evidence_parts) if evidence_parts else "No snippets found."
@@ -615,7 +616,15 @@ async def verify_subsidiaries(parent_name: str = Form(...), file: UploadFile = F
                     ws.cell(row=cell.row, column=start_col_idx).value = "MATCH" if is_match else "NO MATCH"
                     ws.cell(row=cell.row, column=start_col_idx + 1).value = str(res.get('confidence', 'none')).upper()
                     ws.cell(row=cell.row, column=start_col_idx + 2).value = res.get('evidence', '')
-                    ws.cell(row=cell.row, column=start_col_idx + 3).value = res.get('source_link', 'N/A')
+                    
+                    # Source link with clickable hyperlink
+                    source_link_val = res.get('source_link', 'N/A')
+                    link_cell = ws.cell(row=cell.row, column=start_col_idx + 3)
+                    link_cell.value = source_link_val
+                    if source_link_val.startswith("http"):
+                        link_cell.hyperlink = source_link_val
+                        link_cell.style = "Hyperlink"
+                        
                     ws.cell(row=cell.row, column=start_col_idx + 4).value = res.get('reason', '')
                 
         run_id = str(uuid.uuid4())
