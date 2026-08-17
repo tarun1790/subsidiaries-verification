@@ -295,11 +295,33 @@ input:checked + .slider:before {
 .toggle-info strong {
     font-size: 0.95rem;
     color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.badge-advanced {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    font-weight: 900;
 }
 
 .toggle-info span {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
     color: #a0a0a0;
+    margin-top: 0.25rem;
+}
+
+.toggle-info span strong {
+    display: inline;
+    color: #d1d5db;
+    font-size: inherit;
 }
 
 .btn-submit {
