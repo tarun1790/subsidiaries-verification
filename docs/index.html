@@ -32,14 +32,7 @@
                     <input type="text" id="parent-name" name="parent_name" placeholder="Enter Parent Company..." required>
                 </div>
                 
-                <div class="input-group">
-                    <label for="scan-depth">Scan Depth</label>
-                    <select id="scan-depth" name="scan_depth">
-                        <option value="quick">Quick Scan (Google Only)</option>
-                        <option value="deep">Deep Corporate Audit (Google + Crunchbase + LinkedIn)</option>
-                    </select>
-                </div>
-                
+
                 <div class="input-group">
                     <label for="excel-file">LEMs Excel File</label>
                     <div class="file-upload-wrapper">
@@ -48,6 +41,17 @@
                             <span id="file-name">Choose an Excel file...</span>
                             <span class="btn-upload">Browse</span>
                         </div>
+                    </div>
+                </div>
+                
+                <div class="toggle-group">
+                    <label class="switch">
+                        <input type="checkbox" id="scan-depth-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <div class="toggle-info">
+                        <strong>Deep Corporate Audit</strong>
+                        <span>Uses Google + Crunchbase + LinkedIn (Slower but more accurate). Defaults to Google only.</span>
                     </div>
                 </div>
 

@@ -60,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         formData.append('client_id', clientId);
         
+        const scanToggle = document.getElementById('scan-depth-toggle');
+        const scanDepthValue = scanToggle && scanToggle.checked ? 'deep' : 'quick';
+        formData.append('scan_depth', scanDepthValue);
+        
         let wsUrl = API_BASE ? API_BASE.replace('http', 'ws') : `ws://${window.location.host}`;
         const ws = new WebSocket(`${wsUrl}/ws/progress/${clientId}`);
         
