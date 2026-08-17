@@ -152,6 +152,10 @@ async def shutdown_event():
         await playwright_manager.stop()
     logger.info("Playwright browser stopped.")
 
+@app.get("/api/v1/health")
+def health_check():
+    return {"status": "ok"}
+
 from fastapi.middleware.cors import CORSMiddleware
 
 # Enable CORS for GitHub Pages
